@@ -1,0 +1,193 @@
+#!/usr/bin/env bash
+#printf '%s (%s)\n' "$BASH_VERSION" "${BASH_VERSINFO[5]}" && exit 0
+#set -x
+
+# Copyright 2014 D630
+# https://github.com/D630/taskwarrior-um
+
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+# for more details.
+
+# You should have received a copy of the GNU General
+# Public License along with this program. If not, see
+# <http://www.gnu.org/licenses/gpl-3.0.html>.
+
+# --- Functions.
+
+_version() { echo "taskwarrior-um 0.1.0.1" ; }
+
+_help() {
+    printf "taskum [-h|-v|-n] [-a|TASKWARRIOR_SUBCOMMAND]
+
+OPTIONS
+-------
+    -h,  -help
+    -v,  -version
+    -n,  -verbose-nothing   means: 'task rc.verbose:nothing'
+
+SUBCOMMANDS
+-----------
+    -a,  -add                [ <AFIELD> ... ]
+    TASKWARRIOR_SUBCOMMAND   [ <NIDFILTER> ]
+                             See 'man task'
+
+ARGUMENTS
+---------
+    <AFIELD>
+                             'uri:string'
+                             'name:string'
+                             'note:string'
+                             'pro:one.project.with.hierarchy'
+                             'dep:id,id,id'
+                             '+tag'
+    <NIDFILTER>              '--id'
+"
+}
+
+_add()
+{
+    declare i= uri= name= note= project= dependencies= scheme= authority= part=
+    declare -a tags=()
+    declare -g -a task_add_args=()
+
+    if (( $# == 0 ))
+    then
+        read -re -p "URI: " uri
+        uri=${uri%%/}
+        if [[ ! $uri =~ ^(http|https|ftp|ftps|dav|davs|gopher|webdav|webdavs):// ]]
+        then
+            { echo "Scheme is not allowed." >&2 ; return 1 ; }
+        elif (( $(task status:pending uri:"\"${uri}\"" count) != 0 ))
+        then
+            { echo "URI '${uri}' has already been recorded." >&2 ; return 1 ; }
+        fi
+
+        read -re -p "Name: " name
+        read -re -p "Note: " note
+        IFS=';' read -re -p "Tags: " -a tags
+        read -re -p "Project: " project
+        read -re -p "Dependencies: " dependencies
+    else
+        for i
+        do
+            case $i in
+                uri:*)
+                        uri=${i#*:}
+                        uri=${uri%%/}
+                        if [[ ! $uri =~ ^(http|https|ftp|ftps|dav|davs|gopher|webdav|webdavs):// ]]
+                        then
+                            { echo "Scheme is not allowed." >&2 ; return 1 ; }
+                        elif (( $(task status:pending uri:"\"${uri}\"" count) != 0 ))
+                        then
+                            { echo "URI '${uri}' has already been recorded." >&2 ; return 1 ; }
+                        fi
+                        ;;
+                name:*)
+                        name=${i#*:}
+                        ;;
+                note:*)
+                        note=${i#*:}
+                        ;;
+                pro:*)
+                        project=${i#*:}
+                        ;;
+                +*)
+                        tags+=( "${i#*+}" )
+                        ;;
+                dep:*)
+                        dependencies=${i#*:}
+                        ;;
+            esac
+        done
+    fi
+
+    [[ ! $uri ]] && { echo "We need an URI to record." >&2 ; return 1 ; }
+    (( ${#tags[@]} == 0 )) && tags[0]=null
+
+    scheme=${uri%%:*}
+    IFS='/' read -r authority part <<< "${uri##*://}"
+    part=/${part%%/}
+
+    task_add_args=( description:uri uri:\"${uri}\" scheme:${scheme} authority:${authority} part:\"${part}\" name:\"${name:-null}\" note:\"${note:-null}\" project:${project} depends:${dependencies} ${tags[@]/#/+} )
+
+    (( ${#task_add_args[@]} >= 2 ))
+}
+
+_calculate_id()
+{
+    declare last_id= id= filter=
+    declare -a ids=()
+
+    IFS='-' read -r _ last_id < <(task id)
+
+    for id in $(_parse_id "$1")
+    do
+        ids+=( $((last_id + 1 - $id)) )
+    done
+
+     printf -v filter '%s,' "${ids[@]}"
+     printf '%s\n' "${filter%*,}"
+}
+
+_parse_id() { eval "printf '%s\n' $(sed -re 's/,/ /g;s/([[:digit:]]+)-([[:digit:]]+)/{\1..\2}/g' <<< "$1")" ; }
+
+# --- Main.
+
+{ [[ ! $BASH_VERSION ]] || (( ${BASH_VERSINFO[0]} < 4)) ; } && { echo "bash >= 4.0 required." >&2 ; exit 1 ; }
+
+declare -r predir_datadir=${XDG_DATA_HOME:-${HOME}/.local/share}
+declare -r predir_configdir=${XDG_CONFIG_HOME:-${HOME}/.config}
+declare -rx TASKDATA=${TASKUM_DATA:-${predir_datadir}/taskum}
+declare -rx TASKRC=${TASKUM_CONFIG:-${predir_configdir}/taskum}/taskumrc
+
+[[ -f $TASKDATA ]] && { echo "Could not create Data Dir." >&2 ; exit 1 ; }
+[[ ! -e $TASKDATA ]] && mkdir -p "$TASKDATA"
+[[ -f ${TASKRC%/*} ]] && { echo "Could not create Config Dir." >&2 ; exit 1 ; }
+[[ ! -e ${TASKRC%/*} ]] && mkdir -p "${TASKRC%/*}"
+
+declare rc_verbose_nothing= filter=
+
+while :
+do
+    case ${1#-} in
+        v|version)
+                shift 1
+                _version
+                task version
+                exit 0
+                ;;
+        h|help)
+                shift 1
+                _help
+                task help
+                exit
+                ;;
+        a|add)
+                shift 1
+                _add "$@" && task add "${task_add_args[@]}"
+                unset -v task_add_args
+                exit 0
+                ;;
+        n|verbose-nothing)
+                shift 1
+                rc_verbose_nothing=rc.verbose:nothing
+                continue
+                ;;
+        -[0-9]*)
+                filter=$(_calculate_id "${1#--}")
+                shift 1
+                ;&
+        *)
+                task "$rc_verbose_nothing" "$filter" "$@"
+                unset -v rc_verbose_nothing filter
+                exit 0
+                ;;
+    esac
+done
