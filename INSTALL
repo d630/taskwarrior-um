@@ -1,2 +1,0 @@
-1. Make file "taskum" executable and cp it to /usr/local/bin or "${HOME}/bin".
-2. Configure your "taskumrc". See file "taskumrc.example".
