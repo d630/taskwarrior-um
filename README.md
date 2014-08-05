@@ -429,4 +429,4 @@ To use Taskwarrior with non-default data dir and conf file, set `TASKDATA` and
 
 ### Bugs & Requests
 
-Report it on 'https://github.com/D630/taskwarrior-um'.
+Report it on https://github.com/D630/taskwarrior-um .
