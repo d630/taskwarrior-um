@@ -124,7 +124,7 @@ Feel free to follow up and build your own reports.
 
 ### Index
 
-1. [Requierement](#install)
+1. [Requierement](#requierement)
 2. [Usage](#usage)
 3. [Examples](#examples)
 4. [Configurations](#configurations)
@@ -221,61 +221,64 @@ $ taskum --1-10,20
 All other commands are native Taskwarrior commands or custom reports. See its Manpage for more
 details.
 ```bash
-    $ taskum +documentation rmeta
+$ taskum +documentation rmeta
 
-    ID Pro                           Tags                          Ref
-    -- ----------------------------- ----------------------------- ---
-     2 software.internet.bookmarking taskwarrior documentation cms 1
+ID Pro                           Tags                          Ref
+-- ----------------------------- ----------------------------- ---
+ 2 software.internet.bookmarking taskwarrior documentation cms 1
 ```
 
 ```bash
-    $ taskum 'part ~ doc' rsplit
+$ taskum 'part ~ doc' rsplit
 
-    ID Scheme Auth            Part
-    -- ------ --------------- -----
-     2 http   taskwarrior.org /docs
+ID Scheme Auth            Part
+-- ------ --------------- -----
+ 2 http   taskwarrior.org /docs
 ```
 
 ```bash
-    $ taskum 1,2 delete
-    Permanently delete task 1 'uri'? (yes/no/all/quit) yes
+$ taskum 1,2 delete
+Permanently delete task 1 'uri'? (yes/no/all/quit) yes
 
-    Permanently delete task 2 'uri'? (yes/no/all/quit) yes
+Permanently delete task 2 'uri'? (yes/no/all/quit) yes
 ```
 
 ```bash
-    $ taskum undo
+$ taskum undo
 
-    --- previous state  Undo will restore this state
-    +++ current state   Change made 2014-04-21_06:56
-    -end:
-    +end:               1398056191
-    -modified:
-    +modified:          1398056193
-    -status:            pending
-    +status:            deleted
+--- previous state  Undo will restore this state
++++ current state   Change made 2014-04-21_06:56
+-end:
++end:               1398056191
+-modified:
++modified:          1398056193
+-status:            pending
++status:            deleted
 
-    The undo command is not reversible.  Are you sure you want to revert to the previous state? (yes/no) yes
-    Modified task reverted.
-    $ taskum undo
-
-    --- previous state  Undo will restore this state
-    +++ current state   Change made 2014-04-21_06:56
-    -end:
-    +end:               1398056183
-    -modified:
-    +modified:          1398056191
-    -status:            pending
-    +status:            deleted
-
-    The undo command is not reversible.  Are you sure you want to revert to the previous state? (yes/no) yes
-    Modified task reverted.
+The undo command is not reversible.  Are you sure you want to revert to the previous state? (yes/no) yes
+Modified task reverted.
 ```
 
 ```bash
-    $ taskum -n newest
-     2 1398049985 1h  http://taskwarrior.org/docs
-     1 1398049585 1h  http://taskwarrior.org
+$ taskum undo
+
+--- previous state  Undo will restore this state
++++ current state   Change made 2014-04-21_06:56
+-end:
++end:               1398056183
+-modified:
++modified:          1398056191
+-status:            pending
++status:            deleted
+
+The undo command is not reversible.  Are you sure you want to revert to the previous state? (yes/no) yes
+Modified task reverted.
+```
+
+```bash
+$ taskum -n newest
+ 2 1398049985 1h  http://taskwarrior.org/docs
+ 1 1398049585 1h  http://taskwarrior.org
 ```
 
 ### Configurations
@@ -323,81 +326,81 @@ uda.uri.values=
 The modified and custom reports are:
 
 ```bash
-    $ taskum _show | egrep -e "^report.(r[^e].*|new.*|old.*|list)"
-    report.list.columns=id,entry.epoch,modified.epoch,name,note,uri,scheme,authority,part,project.full,tags.list,depends.list
-    report.list.description=Modified: Lists all pending tasks
-    report.list.filter=status:pending
-    report.list.labels=ID,ED,MD,Name,Note,URI,Scheme,Auth,Part,Pro,Tags,Ref
-    report.list.sort=id+
-    report.newest.columns=id,entry.epoch,entry.age,uri
-    report.newest.description=Modified: Shows the newest URIs
-    report.newest.filter=status:pending limit:30
-    report.newest.labels=ID,ED,Age,Uri
-    report.newest.sort=id-
-    report.oldest.columns=id,entry.epoch,entry.age,uri
-    report.oldest.description=Modified: Shows the oldest URIs
-    report.oldest.filter=status:pending limit:30
-    report.oldest.labels=ID,ED,Age,Uri
-    report.oldest.sort=id+
-    report.rmeta.columns=id,project.full,tags.list,depends.list
-    report.rmeta.description=Custom: Lists ID, Pro, Tags and Ref
-    report.rmeta.filter=status:pending
-    report.rmeta.labels=ID,Pro,Tags,Ref
-    report.rmeta.sort=id+
-    report.rname.columns=id,name,uri
-    report.rname.description=Custom: Lists ID, Name and URI
-    report.rname.filter=status:pending
-    report.rname.labels=ID,Name,URI
-    report.rname.sort=id+
-    report.rnote.columns=id,note
-    report.rnote.description=Custom: Lists ID and Note
-    report.rnote.filter=status:pending
-    report.rnote.labels=ID,Note
-    report.rnote.sort=id+
-    report.rpro.columns=id,project.full,uri
-    report.rpro.description=Custom: Lists ID, Project and URI
-    report.rpro.filter=status:pending
-    report.rpro.labels=ID,Pro,URI
-    report.rpro.sort=id+
-    report.rref.columns=id,depends.list,uri
-    report.rref.description=Custom: Lists ID, Ref and URI
-    report.rref.filter=status:pending
-    report.rref.labels=ID,Ref,URI
-    report.rref.sort=id+
-    report.rsplit.columns=id,scheme,authority,part
-    report.rsplit.description=Custom: Lists ID, Scheme, Authority and Part
-    report.rsplit.filter=status:pending
-    report.rsplit.labels=ID,Scheme,Auth,Part
-    report.rsplit.sort=id+
-    report.rtags.columns=id,tags.list,uri
-    report.rtags.description=Custom: Lists ID, Tags and URI
-    report.rtags.filter=status:pending
-    report.rtags.labels=ID,Tags,URI
-    report.rtags.sort=id+
-    report.ruri.columns=id,uri
-    report.ruri.description=Custom: Lists ID and URI
-    report.ruri.filter=status:pending
-    report.ruri.labels=ID,URI
-    report.ruri.sort=id+
+$ taskum _show | egrep -e "^report.(r[^e].*|new.*|old.*|list)"
+report.list.columns=id,entry.epoch,modified.epoch,name,note,uri,scheme,authority,part,project.full,tags.list,depends.list
+report.list.description=Modified: Lists all pending tasks
+report.list.filter=status:pending
+report.list.labels=ID,ED,MD,Name,Note,URI,Scheme,Auth,Part,Pro,Tags,Ref
+report.list.sort=id+
+report.newest.columns=id,entry.epoch,entry.age,uri
+report.newest.description=Modified: Shows the newest URIs
+report.newest.filter=status:pending limit:30
+report.newest.labels=ID,ED,Age,Uri
+report.newest.sort=id-
+report.oldest.columns=id,entry.epoch,entry.age,uri
+report.oldest.description=Modified: Shows the oldest URIs
+report.oldest.filter=status:pending limit:30
+report.oldest.labels=ID,ED,Age,Uri
+report.oldest.sort=id+
+report.rmeta.columns=id,project.full,tags.list,depends.list
+report.rmeta.description=Custom: Lists ID, Pro, Tags and Ref
+report.rmeta.filter=status:pending
+report.rmeta.labels=ID,Pro,Tags,Ref
+report.rmeta.sort=id+
+report.rname.columns=id,name,uri
+report.rname.description=Custom: Lists ID, Name and URI
+report.rname.filter=status:pending
+report.rname.labels=ID,Name,URI
+report.rname.sort=id+
+report.rnote.columns=id,note
+report.rnote.description=Custom: Lists ID and Note
+report.rnote.filter=status:pending
+report.rnote.labels=ID,Note
+report.rnote.sort=id+
+report.rpro.columns=id,project.full,uri
+report.rpro.description=Custom: Lists ID, Project and URI
+report.rpro.filter=status:pending
+report.rpro.labels=ID,Pro,URI
+report.rpro.sort=id+
+report.rref.columns=id,depends.list,uri
+report.rref.description=Custom: Lists ID, Ref and URI
+report.rref.filter=status:pending
+report.rref.labels=ID,Ref,URI
+report.rref.sort=id+
+report.rsplit.columns=id,scheme,authority,part
+report.rsplit.description=Custom: Lists ID, Scheme, Authority and Part
+report.rsplit.filter=status:pending
+report.rsplit.labels=ID,Scheme,Auth,Part
+report.rsplit.sort=id+
+report.rtags.columns=id,tags.list,uri
+report.rtags.description=Custom: Lists ID, Tags and URI
+report.rtags.filter=status:pending
+report.rtags.labels=ID,Tags,URI
+report.rtags.sort=id+
+report.ruri.columns=id,uri
+report.ruri.description=Custom: Lists ID and URI
+report.ruri.filter=status:pending
+report.ruri.labels=ID,URI
+report.ruri.sort=id+
 ```
 
 Every urgency setting has no value:
 
 ```bash
-    $ taskum _show | egrep -e "^urgency"
-    urgency.active.coefficient=
-    urgency.age.coefficient=
-    urgency.age.max=
-    urgency.annotations.coefficient=
-    urgency.blocked.coefficient=
-    urgency.blocking.coefficient=
-    urgency.due.coefficient=
-    urgency.next.coefficient=
-    urgency.priority.coefficient=
-    urgency.project.coefficient=
-    urgency.scheduled.coefficient=
-    urgency.tags.coefficient=
-    urgency.waiting.coefficient=
+$ taskum _show | egrep -e "^urgency"
+urgency.active.coefficient=
+urgency.age.coefficient=
+urgency.age.max=
+urgency.annotations.coefficient=
+urgency.blocked.coefficient=
+urgency.blocking.coefficient=
+urgency.due.coefficient=
+urgency.next.coefficient=
+urgency.priority.coefficient=
+urgency.project.coefficient=
+urgency.scheduled.coefficient=
+urgency.tags.coefficient=
+urgency.waiting.coefficient=
 ```
 
 All other custom settings you may find out with:
@@ -406,14 +409,14 @@ All other custom settings you may find out with:
 
 ### Enviroment
 
-    To use Taskwarrior with non-default data dir and conf file, set `TASKDATA` and
-    `TASKRC`. To build them automatically, we use our own variables:
-    - To locate the data dir the varibale `TASKUM_DATA` is used. If this is not set,
-      `${XDG_DATA_HOME}/taskum` respec. `${HOME}/.local/share/taskum` will be used
-      instead.
-    - To locate the conf dir the variable `TASKUM_CONFIG` is used. If this is not
-      set, `${XDG_CONFIG_HOME}/taskum` respec. `${HOME}/.config/taskum` wil be used
-      instead. The conf file is named `taskumrc`.
+To use Taskwarrior with non-default data dir and conf file, set `TASKDATA` and
+`TASKRC`. To build them automatically, we use our own variables:
+- To locate the data dir the varibale `TASKUM_DATA` is used. If this is not set,
+  `${XDG_DATA_HOME}/taskum` respec. `${HOME}/.local/share/taskum` will be used
+  instead.
+- To locate the conf dir the variable `TASKUM_CONFIG` is used. If this is not
+  set, `${XDG_CONFIG_HOME}/taskum` respec. `${HOME}/.config/taskum` wil be used
+  instead. The conf file is named `taskumrc`.
 
 ### Notes
 
@@ -424,6 +427,6 @@ All other custom settings you may find out with:
 -   Taskwarrior stores its data in json format. Exporting and converting your data is
     quite easy.
 
-# Bugs & Requests
+### Bugs & Requests
 
 Report it on 'https://github.com/D630/taskwarrior-um'.
