@@ -6,115 +6,7 @@ Taskwarrior is mainly written to work with todo lists; but since Taskwarrior has
 
 So, `taskwarrior-um`(1) does nothing else. As a very simple bash shell script it wraps up Taskwarrior and sees to it that only new URIs will be recorded. Therefore, it prepares the `add` subcommand of Taskwarrior.
 
-#### Metadata Items (Fields)
-
-In Taskwarrior every task needs to have a description. In doing so, it is
-irrelevant, if a description conforms with an another description of different
-task. To identify a task, there are the `UUID` field as permanent key and the
-[id](http://taskwarrior.org/docs/ids.html) field as temporary assignment (line counted relative to the entries); not
-until a task is completed or deleted, the id will have been discarded.
-
-The first difference in using Taskwarrior as urimark manager is that there is -- of
-course -- no tasking and nothing, what should be completed. In `taskwarrior-um`(1) all
-records have the status `pending` or `deleted`, and we do not need all the
-subcommands and built-in-attributes (for example [urgency](http://taskwarrior.org/docs/urgency.html)), which imply the
-differentiation between `pending`, `completed` etc. The second difference is
-that we ignore the description attribute; a record should be free to have a
-description. Unfortunately, we can not rename the label of this attribute,
-because it is built-in. For this reason, every record gets a `description` with
-the value `uri` as place holder. It could also be used as a kind of
-categorization. By default, we do not need it.
-
-The built-in attributes and metadata, that we consider, are `project` and `depends`.
-Moreover we want to use `tags`, which are arbitrary words in Taskwarrior. The
-following UDAs are defined and used:
-
-```bash
-$ taskum udas
-
-Name      Type   Label     Allowed Values                                     Default Usage Count
---------- ------ --------- -------------------------------------------------- ------- -----------
-authority string Authority                                                            7553
-name      string Name                                                         null    7553
-note      string Note                                                         null    7553
-part      string Part                                                                 7553
-scheme    string Scheme    http,https,ftp,ftps,dav,davs,gopher,webdav,webdavs         7553
-uri       string URI                                                                  7553
-
-6 UDAs defined
-```
-
-A data set is structured like this:
-
-```bash
-$ taskum 1,2 info
-
-Name                  Value
---------------------- --------------------------------------
-ID                    1
-Description           uri
-Status                Pending
-Project               software.internet.bookmarking
-This task is blocking 2 uri
-Tags                  commandline urimarks homepage todo gtd
-UUID                  886c7566-ce4d-4825-b23b-8ab9441e49c6
-Entered               17_2014-04-21_05:06 (7 mins)
-Urgency               0
-Authority             taskwarrior.org
-Name                  taskwarrior
-Note                  A command line todo manager
-Part                  /
-Scheme                http
-URI                   http://taskwarrior.org
-
-Name                 Value
--------------------- ------------------------------------
-ID                   2
-Description          uri
-Status               Pending
-Project              software.internet.bookmarking
-This task blocked by 1 uri
-Tags                 taskwarrior documentation cms
-UUID                 419c5906-bd38-4d9c-87bb-8c5b100cd992
-Entered              17_2014-04-21_05:13 (27 secs)
-Urgency              0
-Authority            taskwarrior.org
-Name                 taskwarrior
-Note                 some tutorials and introductions
-Part                 /docs
-Scheme               http
-URI                  http://taskwarrior.org/docs
-```
-
-Like I said, we should ignore `description` and `urgency`. On the `depends`
-attribute we give a different interpretation as `reference` attribute. In fact,
-we could use a tag as a reference, but having an own attribute is better in
-case of some postprocessing.
-
-#### Reports
-
-`taskwarrior-um`(1) comes along with 36 built-in and custom reports. The buit-in
-reports, which are modified, are `list`, `newest` and `oldest`; the custom
-reports are:
-
-```
-rmeta            Custom: Lists ID, Pro, Tags and Ref
-rname            Custom: Lists ID, Name and URI
-rnote            Custom: Lists ID and Note
-rpro             Custom: Lists ID, Project and URI
-rref             Custom: Lists ID, Ref and URI
-rsplit           Custom: Lists ID, Scheme, Authority and Part
-rtags            Custom: Lists ID, Tags and URI
-ruri             Custom: Lists ID and URI
-```
-
-You may list all supported reports with Taskwarriors's subcommand `reports`:
-
-`$ taskum reports`
-
-Feel free to follow up and build your own reports.
-
-### Requierement
+#### Requierement
 
 - `GNU bash`(1) >= 4.0
 - `task`(1) >= 2.1.0 and < 2.4.0
@@ -265,6 +157,114 @@ $ taskum -n newest
  2 1398049985 1h  http://taskwarrior.org/docs
  1 1398049585 1h  http://taskwarrior.org
 ```
+
+#### Metadata Items (Fields)
+
+In Taskwarrior every task needs to have a description. In doing so, it is
+irrelevant, if a description conforms with an another description of different
+task. To identify a task, there are the `UUID` field as permanent key and the
+[id](http://taskwarrior.org/docs/ids.html) field as temporary assignment (line counted relative to the entries); not
+until a task is completed or deleted, the id will have been discarded.
+
+The first difference in using Taskwarrior as urimark manager is that there is -- of
+course -- no tasking and nothing, what should be completed. In `taskwarrior-um`(1) all
+records have the status `pending` or `deleted`, and we do not need all the
+subcommands and built-in-attributes (for example [urgency](http://taskwarrior.org/docs/urgency.html)), which imply the
+differentiation between `pending`, `completed` etc. The second difference is
+that we ignore the description attribute; a record should be free to have a
+description. Unfortunately, we can not rename the label of this attribute,
+because it is built-in. For this reason, every record gets a `description` with
+the value `uri` as place holder. It could also be used as a kind of
+categorization. By default, we do not need it.
+
+The built-in attributes and metadata, that we consider, are `project` and `depends`.
+Moreover we want to use `tags`, which are arbitrary words in Taskwarrior. The
+following UDAs are defined and used:
+
+```
+$ taskum udas
+
+Name      Type   Label     Allowed Values                                     Default Usage Count
+--------- ------ --------- -------------------------------------------------- ------- -----------
+authority string Authority                                                            7553
+name      string Name                                                         null    7553
+note      string Note                                                         null    7553
+part      string Part                                                                 7553
+scheme    string Scheme    http,https,ftp,ftps,dav,davs,gopher,webdav,webdavs         7553
+uri       string URI                                                                  7553
+
+6 UDAs defined
+```
+
+A data set is structured like this:
+
+```
+$ taskum 1,2 info
+
+Name                  Value
+--------------------- --------------------------------------
+ID                    1
+Description           uri
+Status                Pending
+Project               software.internet.bookmarking
+This task is blocking 2 uri
+Tags                  commandline urimarks homepage todo gtd
+UUID                  886c7566-ce4d-4825-b23b-8ab9441e49c6
+Entered               17_2014-04-21_05:06 (7 mins)
+Urgency               0
+Authority             taskwarrior.org
+Name                  taskwarrior
+Note                  A command line todo manager
+Part                  /
+Scheme                http
+URI                   http://taskwarrior.org
+
+Name                 Value
+-------------------- ------------------------------------
+ID                   2
+Description          uri
+Status               Pending
+Project              software.internet.bookmarking
+This task blocked by 1 uri
+Tags                 taskwarrior documentation cms
+UUID                 419c5906-bd38-4d9c-87bb-8c5b100cd992
+Entered              17_2014-04-21_05:13 (27 secs)
+Urgency              0
+Authority            taskwarrior.org
+Name                 taskwarrior
+Note                 some tutorials and introductions
+Part                 /docs
+Scheme               http
+URI                  http://taskwarrior.org/docs
+```
+
+Like I said, we should ignore `description` and `urgency`. On the `depends`
+attribute we give a different interpretation as `reference` attribute. In fact,
+we could use a tag as a reference, but having an own attribute is better in
+case of some postprocessing.
+
+#### Reports
+
+`taskwarrior-um`(1) comes along with 36 built-in and custom reports. The buit-in
+reports, which are modified, are `list`, `newest` and `oldest`; the custom
+reports are:
+
+```
+rmeta            Custom: Lists ID, Pro, Tags and Ref
+rname            Custom: Lists ID, Name and URI
+rnote            Custom: Lists ID and Note
+rpro             Custom: Lists ID, Project and URI
+rref             Custom: Lists ID, Ref and URI
+rsplit           Custom: Lists ID, Scheme, Authority and Part
+rtags            Custom: Lists ID, Tags and URI
+ruri             Custom: Lists ID and URI
+```
+
+You may list all supported reports with Taskwarriors's subcommand `reports`:
+
+`$ taskum reports`
+
+Feel free to follow up and build your own reports.
 
 #### Configurations
 
