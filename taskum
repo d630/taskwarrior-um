@@ -20,10 +20,10 @@
 
 # -- FUNCTIONS.
 
-__taskum_version() { echo "taskwarrior-um 0.1.2.0" ; }
+__taskum_version() { echo "taskwarrior-um 0.1.2.1" ; }
 
 __taskum_help() {
-    printf "taskum [-h|-v|-n] [-a|TASKWARRIOR_SUBCOMMAND]
+    builtin printf "taskum [-h|-v|-n] [-a|TASKWARRIOR_SUBCOMMAND]
 
 OPTIONS
 -------
@@ -200,7 +200,7 @@ __taskum_main()
             n|-verbose-nothing)
                 builtin shift 1
                 rc_verbose_nothing=rc.verbose:nothing
-                continue
+                builtin continue
                 ;;
             -[0-9]*)
                 __taskum_calculate_id "${1#--}"
