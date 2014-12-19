@@ -1,4 +1,4 @@
-### taskwarrior-um v0.1.2.0 [GNU GPLv3]
+### taskwarrior-um v0.1.2.1 [GNU GPLv3]
 
 [Taskwarrior](http://taskwarrior.org/) is a list processing program written in C++ (MIT License) with a
 very nice command line interface to act like a todo list manager with a rich set of subcommands. As the name implies,
