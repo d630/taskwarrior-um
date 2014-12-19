@@ -3,19 +3,6 @@
 # Copyright 2014 D630
 # https://github.com/D630/taskwarrior-um
 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
-
 # -- DEBUGGING.
 
 #printf '%s (%s)\n' "$BASH_VERSION" "${BASH_VERSINFO[5]}" && exit 0
@@ -33,20 +20,20 @@
 
 # -- FUNCTIONS.
 
-__taskum_version() { echo "taskwarrior-um 0.1.1.0" ; }
+__taskum_version() { echo "taskwarrior-um 0.1.2.0" ; }
 
 __taskum_help() {
     printf "taskum [-h|-v|-n] [-a|TASKWARRIOR_SUBCOMMAND]
 
 OPTIONS
 -------
-    -h,  -help
-    -v,  -version
-    -n,  -verbose-nothing   means: 'task rc.verbose:nothing'
+    -h,  --help
+    -v,  --version
+    -n,  --verbose-nothing   means: 'task rc.verbose:nothing'
 
 SUBCOMMANDS
 -----------
-    -a,  -add                [ <AFIELD> ... ]
+    -a,  --add                [ <AFIELD> ... ]
     TASKWARRIOR_SUBCOMMAND   [ <NIDFILTER> ]
                              See 'man task'
 
@@ -60,80 +47,68 @@ ARGUMENTS
                              'dep:id,id,id'
                              '+tag'
     <NIDFILTER>              '--id'
+
 -------------------------------------------------------------
 "
 }
 
 __taskum_add()
 {
-    declare \
-            authority= \
-            dependencies= \
-            i= \
-            name= \
-            note= \
-            part= \
-            project= \
-            scheme= \
-            uri=
-    declare -a tags=()
-    declare -ga task_add_args=()
+    builtin declare \
+        authority= \
+        dependencies= \
+        i= \
+        name= \
+        note= \
+        part= \
+        project= \
+        scheme= \
+        uri=
+    builtin declare -a tags="()"
+    builtin declare -ga task_add_args="()"
 
     if (($# == 0))
     then
-        read -re -p "URI: " uri
+        builtin read -re -p "URI: " uri
         uri=${uri%%/}
-        if [[ ! $uri =~ ^(http|https|ftp|ftps|dav|davs|gopher|webdav|webdavs):// ]]
-        then
-            { echo "Scheme is not allowed." 1>&2 ; return 1 ; }
-        elif (($(task status:pending uri:"\"${uri}\"" count) != 0))
-        then
-            { echo "URI '${uri}' has already been recorded." 1>&2 ; return 1 ; }
-        fi
-        read -re -p "Name: " name
-        read -re -p "Note: " note
-        IFS=';' read -re -p "Tags: " -a tags
-        read -re -p "Project: " project
-        read -re -p "Dependencies: " dependencies
+        __taskum_test_uri
+        builtin read -re -p "Name: " name
+        builtin read -re -p "Note: " note
+        IFS=';' builtin read -re -p "Tags: " -a tags
+        builtin read -re -p "Project: " project
+        builtin read -re -p "Dependencies: " dependencies
     else
         for i
         do
             case $i in
-                uri:*)
-                        uri=${i#*:}
-                        uri=${uri%%/}
-                        if [[ ! $uri =~ ^(http|https|ftp|ftps|dav|davs|gopher|webdav|webdavs):// ]]
-                        then
-                            { echo "Scheme is not allowed." 1>&2 ; return 1 ; }
-                        elif (($(task status:pending uri:"\"${uri}\"" count) != 0))
-                        then
-                            { echo "URI '${uri}' has already been recorded." 1>&2 ; return 1 ; }
-                        fi
-                        ;;
-                name:*)
-                        name=${i#*:}
-                        ;;
-                note:*)
-                        note=${i#*:}
-                        ;;
-                pro:*)
-                        project=${i#*:}
-                        ;;
-                +*)
-                        tags+=("${i#*+}")
-                        ;;
-                dep:*)
-                        dependencies=${i#*:}
-                        ;;
+                uri:?*)
+                    uri=${i#*:}
+                    uri=${uri%%/}
+                    __taskum_test_uri
+                    ;;
+                name:?*)
+                    name=${i#*:}
+                    ;;
+                note:?*)
+                    note=${i#*:}
+                    ;;
+                pro:?*)
+                    project=${i#*:}
+                    ;;
+                +?*)
+                    tags+=("${i#*+}")
+                    ;;
+                dep:?*)
+                    dependencies=${i#*:}
             esac
         done
     fi
 
-    [[ ! $uri ]] && { echo "We need an URI to record." 1>&2 ; return 1 ; }
+    [[ -z $uri ]] && { echo "We need an URI to record." 1>&2 ; return 1 ; }
 
     ((${#tags[@]} == 0)) && tags[0]=null
     scheme=${uri%%:*}
-    IFS='/' read -r authority part <<< "${uri##*://}"
+    IFS='/' builtin read -r authority part <<< "${uri##*://}"
     part=/${part%%/}
 
     task_add_args=(
@@ -152,78 +127,90 @@ __taskum_add()
     ((${#task_add_args[@]} >= 2))
 }
 
+__taskum_test_uri()
+{
+    if [[ ! $uri =~ ^(https?|ftps?|davs?|gopher|webdavs?):// ]]
+    then
+        { echo "Scheme is not allowed." 1>&2 ; builtin exit 1 ; }
+    elif (($(command task status:pending uri:"\"${uri}\"" count) != 0))
+    then
+        { echo "URI '${uri}' has already been recorded." 1>&2 ; builtin exit 1 ; }
+    fi
+}
+
 __taskum_calculate_id()
 {
-    declare \
-            filter= \
-            id= \
-            last_id=
-    declare -a ids=()
+    builtin declare \
+        id= \
+        last_id=
+    builtin declare -a ids="()"
 
-    IFS='-' read -r _ last_id < <(task id)
+    IFS='-' builtin read -r _ last_id < <(command task id)
 
     for id in $(__taskum_parse_id "$1")
     do
-        ids+=($((last_id + 1 - $id)))
+        ids+=($((last_id + 1 - id)))
     done
 
-     printf -v filter '%s,' "${ids[@]}"
-     printf '%s\n' "${filter%*,}"
+    builtin printf -v filter '%s,' "${ids[@]}"
+    builtin printf -v filter '%s\n' "${filter%*,}"
 }
 
-__taskum_parse_id() { eval "printf '%s\n' $(sed -re 's/,/ /g;s/([[:digit:]]+)-([[:digit:]]+)/{\1..\2}/g' <<< "$1")" ; }
+__taskum_parse_id() { builtin eval "builtin printf '%s\n' $(command sed -re 's/,/ /g;s/([[:digit:]]+)-([[:digit:]]+)/{\1..\2}/g' <<< "$1")" ; }
 
 # -- MAIN.
 
-declare -r \
-           predir_configdir=${XDG_CONFIG_HOME:-${HOME}/.config} \
-           predir_datadir=${XDG_DATA_HOME:-${HOME}/.local/share}
+__taskum_main()
+{
+    builtin declare -r \
+        predir_configdir=${XDG_CONFIG_HOME:-${HOME}/.config} \
+        predir_datadir=${XDG_DATA_HOME:-${HOME}/.local/share}
 
-declare -rx \
-           TASKDATA=${TASKUM_DATA:-${predir_datadir}/taskum} \
-           TASKRC=${TASKUM_CONFIG:-${predir_configdir}/taskum}/taskumrc
+    builtin declare -rx \
+        TASKDATA=${TASKUM_DATA:-${predir_datadir}/taskum} \
+        TASKRC=${TASKUM_CONFIG:-${predir_configdir}/taskum}/taskumrc
 
-[[ ! -d $TASKDATA ]] && mkdir -p -- "$TASKDATA"
-[[ ! -f ${TASKRC%/*} ]] && mkdir -p -- "${TASKRC%/*}"
+    [[ ! -d $TASKDATA ]] && command mkdir -p -- "$TASKDATA"
+    [[ ! -f ${TASKRC%/*} ]] && command mkdir -p -- "${TASKRC%/*}"
 
-declare \
+    builtin declare \
         filter= \
         rc_verbose_nothing=
 
-while :
-do
-    case ${1#-} in
-        v|version)
-                shift 1
+    while builtin :
+    do
+        case ${1#-} in
+            v|-version)
+                builtin shift 1
                 __taskum_version
-                task version
-                exit 0
+                command task version
+                builtin exit $?
                 ;;
-        h|help)
-                shift 1
+            h|-help)
+                builtin shift 1
                 __taskum_help
-                task help
-                exit
+                command task help
+                builtin exit $?
                 ;;
-        a|add)
-                shift 1
-                __taskum_add "$@" && task add "${task_add_args[@]}"
-                unset -v task_add_args
-                exit 0
+            a|-add)
+                builtin shift 1
+                __taskum_add "$@" && command task add "${task_add_args[@]}"
+                builtin exit $?
                 ;;
-        n|verbose-nothing)
-                shift 1
+            n|-verbose-nothing)
+                builtin shift 1
                 rc_verbose_nothing=rc.verbose:nothing
                 continue
                 ;;
-        -[0-9]*)
-                filter=$(__taskum_calculate_id "${1#--}")
-                shift 1
+            -[0-9]*)
+                __taskum_calculate_id "${1#--}"
+                builtin shift 1
                 ;&
-        *)
-                task "$rc_verbose_nothing" "$filter" "$@"
-                unset -v rc_verbose_nothing filter
-                exit 0
-                ;;
-    esac
-done
+            *)
+                command task "$rc_verbose_nothing" "$filter" "$@"
+                builtin exit $?
+        esac
+    done
+}
+
+__taskum_main "$@"

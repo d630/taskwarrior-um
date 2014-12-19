@@ -1,18 +1,10 @@
-## taskwarrior-um v0.1.1.0 [GNU GPLv3]
+### taskwarrior-um v0.1.2.0 [GNU GPLv3]
 
 [Taskwarrior](http://taskwarrior.org/) is a list processing program written in C++ (MIT License) with a
-very nice command line interface to act like a
-todo list manager with a rich set of subcommands. As the name implies,
-Taskwarrior is mainly written to work with todo lists; but since Taskwarrior
-has introduced [User Defined Attributes (UDAs)](http://taskwarrior.org/docs/udas.html) in version 2.1.0 (2012-07-23), it
-is quite easy to change the focus point by defining new metadata items. To use
-Taskwarrior as simple command line bookmark manager we just have to create a
-proper configuration file with UDAs and custom [reports](http://taskwarrior.org/docs/tutorials/report.html); additionally, we need to
-take care that an [URI](http://en.wikipedia.org/wiki/URI) is recorded once only.
+very nice command line interface to act like a todo list manager with a rich set of subcommands. As the name implies,
+Taskwarrior is mainly written to work with todo lists; but since Taskwarrior has introduced [User Defined Attributes (UDAs)](http://taskwarrior.org/docs/udas.html) in version 2.1.0 (2012-07-23), it is quite easy to change the focus point by defining new metadata items. To use Taskwarrior as simple command line bookmark manager we just have to create a proper configuration file with UDAs and custom [reports](http://taskwarrior.org/docs/tutorials/report.html); additionally, we need to take care that an [URI](http://en.wikipedia.org/wiki/URI) is recorded once only.
 
-So, `taskwarrior-um` does nothing else. As a very simple bash shell script it
-wraps up Taskwarrior and sees to it that only new URIs will be recorded.
-Therefore, it prepares the `add` subcommand of Taskwarrior.
+So, `taskwarrior-um`(1) does nothing else. As a very simple bash shell script it wraps up Taskwarrior and sees to it that only new URIs will be recorded. Therefore, it prepares the `add` subcommand of Taskwarrior.
 
 #### Metadata Items (Fields)
 
@@ -22,8 +14,8 @@ task. To identify a task, there are the `UUID` field as permanent key and the
 [id](http://taskwarrior.org/docs/ids.html) field as temporary assignment (line counted relative to the entries); not
 until a task is completed or deleted, the id will have been discarded.
 
-The first difference in using Taskwarrior as urimark manager is that there is - of
-course - no tasking and nothing, what should be completed. In `taskwarrior-um` all
+The first difference in using Taskwarrior as urimark manager is that there is -- of
+course -- no tasking and nothing, what should be completed. In `taskwarrior-um`(1) all
 records have the status `pending` or `deleted`, and we do not need all the
 subcommands and built-in-attributes (for example [urgency](http://taskwarrior.org/docs/urgency.html)), which imply the
 differentiation between `pending`, `completed` etc. The second difference is
@@ -101,7 +93,7 @@ case of some postprocessing.
 
 #### Reports
 
-`taskwarrior-um` comes along with 36 built-in and custom reports. The buit-in
+`taskwarrior-um`(1) comes along with 36 built-in and custom reports. The buit-in
 reports, which are modified, are `list`, `newest` and `oldest`; the custom
 reports are:
 
@@ -122,25 +114,16 @@ You may list all supported reports with Taskwarriors's subcommand `reports`:
 
 Feel free to follow up and build your own reports.
 
-### Index
-
-1. [Requierement](#requierement)
-2. [Usage](#usage)
-3. [Examples](#examples)
-4. [Configurations](#configurations)
-5. [Enviroment](#enviroment)
-6. [Notes](#notes)
-7. [Bugs & Requests](#bugs--requests)
-
 ### Requierement
 
--   GNU bash >= 4.0
--   task >= 2.1.0
--   GNU sed
--   mkdir
+- `GNU bash`(1) >= 4.0
+- `task`(1) >= 2.1.0 and < 2.4.0
+- `GNU sed`(1)
+- `mkdir`(1)
 
-### Usage
+#### Usage
 
+```
     taskum [-h|-v|-n] [-a|TASKWARRIOR_SUBCOMMAND]
 
     OPTIONS
@@ -165,8 +148,9 @@ Feel free to follow up and build your own reports.
                                  'dep:id,id,id'
                                  '+tag'
         <NIDFILTER>              '--id'
+```
 
-### Examples
+#### Examples
 
 To add a record, we have to specify minimum an URI. Without any arguments the
 built-in command `read` of `bash` prompts you to build the command arguments.
@@ -174,21 +158,21 @@ Take care to seperate the tags with `;`. If you do not specify `project`, `name`
 or `note`, they will get the place holder `null`. A fully formulated `add` command
 could look like this:
 
-```bash
+```
 $ taskum add \
-             uri:"http://taskwarrior.org/docs" \
-             name:taskwarrior \
-             note:"some tutorials and introductions" \
-             depends:1 \
-             pro:software.internet.bookmarking \
-             +taskwarrior \
-             +documentation \
-             +cms
+    uri:"http://taskwarrior.org/docs" \
+    name:taskwarrior \
+    note:"some tutorials and introductions" \
+    depends:1 \
+    pro:software.internet.bookmarking \
+    +taskwarrior \
+    +documentation \
+    +cms
 ```
 
 The default subcommand is the report `ruri` without a filter:
 
-```bash
+```
 $ taskum
 
 ID URI
@@ -197,9 +181,9 @@ ID URI
  2 http://taskwarrior.org/docs
 ```
 
-With option '-n':
+With option `-n`:
 
-```bash
+```
 $ taskum -n
  1 http://taskwarrior.org
  2 http://taskwarrior.org/docs
@@ -212,7 +196,7 @@ To filter the 5th last record:
 
 You can also write the ids like a normal id sequence:
 
-```bash
+```
 $ taskum --5,10
 $ taskum --1-10
 $ taskum --1-10,20
@@ -220,7 +204,8 @@ $ taskum --1-10,20
 
 All other commands are native Taskwarrior commands or custom reports. See its Manpage for more
 details.
-```bash
+
+```
 $ taskum +documentation rmeta
 
 ID Pro                           Tags                          Ref
@@ -228,7 +213,7 @@ ID Pro                           Tags                          Ref
  2 software.internet.bookmarking taskwarrior documentation cms 1
 ```
 
-```bash
+```
 $ taskum 'part ~ doc' rsplit
 
 ID Scheme Auth            Part
@@ -236,14 +221,14 @@ ID Scheme Auth            Part
  2 http   taskwarrior.org /docs
 ```
 
-```bash
+```
 $ taskum 1,2 delete
 Permanently delete task 1 'uri'? (yes/no/all/quit) yes
 
 Permanently delete task 2 'uri'? (yes/no/all/quit) yes
 ```
 
-```bash
+```
 $ taskum undo
 
 --- previous state  Undo will restore this state
@@ -259,7 +244,7 @@ The undo command is not reversible.  Are you sure you want to revert to the prev
 Modified task reverted.
 ```
 
-```bash
+```
 $ taskum undo
 
 --- previous state  Undo will restore this state
@@ -275,21 +260,21 @@ The undo command is not reversible.  Are you sure you want to revert to the prev
 Modified task reverted.
 ```
 
-```bash
+```
 $ taskum -n newest
  2 1398049985 1h  http://taskwarrior.org/docs
  1 1398049585 1h  http://taskwarrior.org
 ```
 
-### Configurations
+#### Configurations
 
-Along with this script comes an example configuration file named `taskumrc.example`.
+Along with this script comes an examplary configuration file named `taskumrc.example`.
 Additionally, there is a fresh new file with all defaults of the configuration
 settings used in Taskwarrior v2.3.0.
 
 The defaults are:
 
-```bash
+```
 $ taskum _show | egrep -e "^default\."
 default.command=ruri
 default.due=
@@ -299,7 +284,7 @@ default.project=null
 
 The UDAs are:
 
-```bash
+```
 $ taskum _show | egrep -e "^uda"
 uda.authority.label=Authority
 uda.authority.type=string
@@ -325,7 +310,7 @@ uda.uri.values=
 
 The modified and custom reports are:
 
-```bash
+```
 $ taskum _show | egrep -e "^report.(r[^e].*|new.*|old.*|list)"
 report.list.columns=id,entry.epoch,modified.epoch,name,note,uri,scheme,authority,part,project.full,tags.list,depends.list
 report.list.description=Modified: Lists all pending tasks
@@ -386,7 +371,7 @@ report.ruri.sort=id+
 
 Every urgency setting has no value:
 
-```bash
+```
 $ taskum _show | egrep -e "^urgency"
 urgency.active.coefficient=
 urgency.age.coefficient=
@@ -407,26 +392,26 @@ All other custom settings you may find out with:
 
 `$ taskum rc.color=yes show`
 
-### Enviroment
+#### Environment
 
 To use Taskwarrior with non-default data dir and conf file, set `TASKDATA` and
 `TASKRC`. To build them automatically, we use our own variables:
 - To locate the data dir the varibale `TASKUM_DATA` is used. If this is not set,
-  `${XDG_DATA_HOME}/taskum` respec. `${HOME}/.local/share/taskum` will be used
+  `${XDG_DATA_HOME}/taskum` or `${HOME}/.local/share/taskum` will be used
   instead.
 - To locate the conf dir the variable `TASKUM_CONFIG` is used. If this is not
-  set, `${XDG_CONFIG_HOME}/taskum` respec. `${HOME}/.config/taskum` wil be used
+  set, `${XDG_CONFIG_HOME}/taskum` or `${HOME}/.config/taskum` wil be used
   instead. The conf file is named `taskumrc`.
 
-### Notes
+#### Notes
 
--   You may write all subcommands and options of `taskwarrior-um` without masking `-`. So, instead of
-    `-help` you may use `help`.
--   Currently, `uri` field needs to have a scheme one of this: http, https, ftp,
-    ftps, dav, davs, gopher, webdav, webdavs.
+-   You may write all subcommands and options of `taskwarrior-um` without masking `--`. So, instead of
+    `--help` you may use `help`.
+-   Currently, `uri` field needs to have a scheme one of this: `http, https, ftp,
+    ftps, dav, davs, gopher, webdav, webdavs`.
 -   Taskwarrior stores its data in json format. Exporting and converting your data is
     quite easy.
 
-### Bugs & Requests
+#### Bugs & Requests
 
-Report it on https://github.com/D630/taskwarrior-um .
+Report it on https://github.com/D630/taskwarrior-um
