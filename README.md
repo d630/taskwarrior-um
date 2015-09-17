@@ -11,7 +11,7 @@ Please feel free to open an issue or put in a pull request on https://github.com
 To download the very latest source code:
 
 ```
-git clone --recursive https://github.com/D630/taskwarrior-um
+git clone https://github.com/D630/taskwarrior-um
 ```
 
 In order to use the latest tagged version, do also something like this:
