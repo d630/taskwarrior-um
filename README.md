@@ -59,6 +59,7 @@ taskwarrior-um has been written in [GNU bash](http://www.gnu.org/software/bash/)
 
 - GNU bash 4.3.42(1)-release
 - GNU coreutils 8.23: mkdir
+- task 2.4.4
 
 ##### LICENCE
 
