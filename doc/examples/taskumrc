@@ -156,6 +156,9 @@ urgency.next.coefficient=
 urgency.project.coefficient=
 urgency.scheduled.coefficient=
 urgency.tags.coefficient=
+urgency.uda.priority.H.coefficient=
+urgency.uda.priority.L.coefficient=
+urgency.uda.priority.M.coefficient=
 urgency.waiting.coefficient=
 
 # Defaults

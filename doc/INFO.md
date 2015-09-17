@@ -99,7 +99,7 @@ Feel free to follow up and build your own reports.
 
 #### Configurations
 
-Along with this script comes an examplary configuration file named `taskumrc.example`.
+Along with this script comes an examplary configuration file named `taskumrc`.
 
 The defaults are:
 
@@ -207,9 +207,9 @@ urgency.next.coefficient=
 urgency.project.coefficient=
 urgency.scheduled.coefficient=
 urgency.tags.coefficient=
-urgency.uda.priority.H.coefficient=6.0
-urgency.uda.priority.L.coefficient=1.8
-urgency.uda.priority.M.coefficient=3.9
+urgency.uda.priority.H.coefficient=
+urgency.uda.priority.L.coefficient=
+urgency.uda.priority.M.coefficient=
 urgency.waiting.coefficient=
 ```
 
