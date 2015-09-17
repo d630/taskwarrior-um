@@ -1,0 +1,195 @@
+#!/usr/bin/env bash
+
+# taskwarrior-um
+# Copyright (C) 2014f. D630, GNU GPLv3
+# <https://github.com/D630/taskwarrior-um>
+
+# -- DEBUGGING.
+
+#printf '%s (%s)\n' "$BASH_VERSION" "${BASH_VERSINFO[5]}" && exit 0
+#set -o errexit
+#set -o errtrace
+#set -o noexec
+#set -o nounset
+#set -o pipefail
+#set -o verbose
+#set -o xtrace
+#trap '(read -p "[$BASH_SOURCE:$LINENO] $BASH_COMMAND?")' DEBUG
+#exec 2>> ~/taskum.log
+#typeset vars_base=$(set -o posix ; set)
+#fgrep -v -e "$vars_base" < <(set -o posix ; set) |
+#egrep -v -e "^BASH_REMATCH=" \
+#         -e "^OPTIND=" \
+#         -e "^REPLY=" \
+#         -e "^BASH_LINENO=" \
+#         -e "^BASH_SOURCE=" \
+#         -e "^FUNCNAME=" |
+#less
+
+# -- FUNCTIONS.
+
+Taskum::Add ()
+{
+        builtin typeset \
+                dependencies \
+                i \
+                name \
+                note \
+                project \
+                uri ;
+
+        builtin typeset -a tags
+        builtin typeset -ga task_add_args
+
+        if
+                (( $# == 0 ))
+        then
+                builtin read -re -p "URI: " uri
+                uri=${uri%%/}
+                Taskum::TestUri
+                builtin read -re -p "Name: " name
+                builtin read -re -p "Note: " note
+                IFS=';' builtin read -re -p "Tags: " -a tags
+                builtin read -re -p "Project: " project
+                builtin read -re -p "Dependencies: " dependencies
+        else
+                for i
+                do
+                        case $i in
+                        uri:?*)
+                                uri=${i#*:}
+                                uri=${uri%%/}
+                                Taskum::TestUri
+                        ;;
+                        name:?*)
+                                name=${i#*:}
+                        ;;
+                        note:?*)
+                                note=${i#*:}
+                        ;;
+                        pro:?*)
+                                project=${i#*:}
+                        ;;
+                        +?*)
+                                tags+=("${i#*+}")
+                        ;;
+                        dep:?*)
+                                dependencies=${i#*:}
+                        esac
+                done
+        fi
+
+        [[ -z $uri ]] && {
+                printf '%s\n' "We need an URI to record." 1>&2
+                return 1
+        }
+
+        (( ${#tags[@]} == 0 )) && tags[0]=null
+
+        task_add_args=(
+                "description:uri"
+                "uri:${uri}"
+                "name:${name:-null}"
+                "note:${note:-null}"
+                "project:${project}"
+                "depends:${dependencies}"
+                ${tags[@]/#/+}
+        )
+
+        (( ${#task_add_args[@]} >= 2 ))
+}
+
+Taskum::Help () {
+        {
+                builtin typeset help="$(</dev/fd/0)"
+        } <<-'HELP'
+Usage
+        taskum [ -h | -v | -n ] [ TW_NATIVE ... ]
+
+Options
+        -h,  --help
+        -v,  --version
+        -n,  --verbose-nothing      means: 'task rc.verbose:nothing'
+
+Environment variables
+        TASKUM_CONFIG
+                Default: ${XDG_CONFIG_HOME:-${HOME}/.config}/taskum/taskrc
+        TASKUM_DATA
+                Default: ${XDG_DATA_HOME:-${HOME}/.local/share}/taskum
+
+---
+
+HELP
+        builtin printf '%s\n' "$help"
+}
+
+Taskum::Main ()
+{
+        builtin typeset -r \
+                predir_configdir=${XDG_CONFIG_HOME:-${HOME}/.config} \
+                predir_datadir=${XDG_DATA_HOME:-${HOME}/.local/share} ;
+
+        builtin declare -rx \
+                TASKDATA=${TASKUM_DATA:-${predir_datadir}/taskum} \
+                TASKRC=${TASKUM_CONFIG:-${predir_configdir}/taskum/taskumrc} ;
+
+        [[ -d $TASKDATA ]] || command mkdir -p -- "$TASKDATA"
+        [[ -d ${TASKRC%/*} ]] || command mkdir -p -- "${TASKRC%/*}"
+
+        builtin typeset rc_verbose_nothing
+
+        while
+                builtin :
+        do
+                case ${1#-} in
+                v|-version)
+                        builtin shift 1
+                        Taskum::Version
+                        command task version
+                        builtin exit $?
+                ;;
+                h|-help)
+                        builtin shift 1
+                        Taskum::Help
+                        command task help
+                        builtin exit $?
+                ;;
+                a|-add|add)
+                        builtin shift 1
+                        Taskum::Add "$@" && command task add "${task_add_args[@]}"
+                        builtin exit $?
+                ;;
+                n|-verbose-nothing)
+                        builtin shift 1
+                        rc_verbose_nothing=rc.verbose:nothing
+                        builtin continue
+                        ;;
+                *)
+                        command task ${rc_verbose_nothing} "$@"
+                        builtin exit $?
+                esac
+        done
+}
+
+Taskum::TestUri ()
+if
+        [[ ! $uri =~ ^(https?|ftps?|davs?|gopher|webdavs?):// ]]
+then
+        builtin printf '%s\n' "Scheme is not allowed." 1>&2
+        builtin exit 1
+elif
+        (( $(command task status.is:pending uri.is:"${uri}" count) != 0 ))
+then
+        builtin printf '%s\n' "URI '${uri}' has already been recorded." 1>&2
+        builtin exit 1
+fi
+
+Taskum::Version () {
+        builtin printf '%s\n\n' "taskwarrior-um v0.2.0"
+}
+
+# -- MAIN.
+
+Taskum::Main "$@"
+
+# vim: set ts=8 sw=8 tw=0 et :

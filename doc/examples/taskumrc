@@ -1,0 +1,328 @@
+# Files
+#data.location=
+exit.on.missing.db=no
+gc=on
+hooks=on
+locking=on
+
+# Terminal
+#editor=vi
+avoidlastcolumn=no
+defaultheight=24
+defaultwidth=80
+detection=on
+hyphenate=on
+reserved.lines=1
+
+# Miscellaneous
+#debug.hooks=0
+#debug.parser=0
+#debug.tls=0
+_forcecolor=no
+abbreviation.minimum=2
+active.indicator=*
+alias.burndown=burndown.weekly
+alias.ghistory=ghistory.monthly
+alias.history=history.monthly
+alias.rm=delete
+alias.shell=exec tasksh
+allow.empty.filter=yes
+bulk=3
+burndown.bias=0.666
+column.padding=1
+complete.all.tags=yes
+confirmation=yes
+debug=no
+dependency.indicator=D
+dom=on
+expressions=infix
+indent.annotation=2
+indent.report=0
+json.array=off
+list.all.projects=yes
+list.all.tags=yes
+nag=You have more urgent tasks.
+obfuscate=no
+print.empty.columns=yes
+recurrence.confirmation=prompt
+recurrence.indicator=R
+recurrence.limit=1
+recurrence=yes
+regex=yes
+row.padding=0
+search.case.sensitive=yes
+shell.prompt=task>
+summary.all.projects=no
+tag.indicator=+
+undo.style=side
+verbose=yes
+xterm.title=no
+
+# Dates
+calendar.details.report=list
+calendar.details=sparse
+calendar.holidays=none
+calendar.legend=yes
+calendar.offset.value=-1
+calendar.offset=no
+date.iso=yes
+dateformat.annotation=
+dateformat.edit=Y-M-D H:N:S
+dateformat.holiday=YMD
+dateformat.info=Y-M-D H:N:S
+dateformat.report=
+dateformat=Y-M-D
+displayweeknumber=yes
+due=7
+weekstart=sunday
+
+# Journal Entries
+journal.info=on
+journal.time.start.annotation=Started task
+journal.time.stop.annotation=Stopped task
+journal.time=no
+
+# Holidays
+#holiday.X.date=
+#holiday.X.name=
+#monthsperline=3
+
+# Dependencies
+dependency.confirmation=on
+dependency.reminder=on
+
+# Color Controls
+#color.active=
+#color.alternate=
+#color.blocked=
+#color.blocking=
+#color.burndown.done=
+#color.burndown.pending=
+#color.burndown.started=
+#color.calendar.due.today=
+#color.calendar.due=
+#color.calendar.holiday=
+#color.calendar.overdue=
+#color.calendar.today=
+#color.calendar.weekend=
+#color.calendar.weeknumber=
+#color.completed=
+#color.debug=
+#color.deleted=
+#color.due.today=
+#color.due=
+#color.error=
+#color.footnote=
+#color.header=
+#color.history.add=
+#color.history.delete=
+#color.history.done=
+#color.keyword.X=
+#color.label.sort=
+#color.label=
+#color.overdue=
+#color.project.X=
+#color.project.none=
+#color.recurring=
+#color.scheduled=
+#color.summary.background=
+#color.summary.bar=
+#color.sync.added=
+#color.sync.changed=
+#color.sync.rejected=
+#color.tag.X=
+#color.tag.none=
+#color.tagged=
+#color.undo.after=
+#color.undo.before=
+#color.until=
+color=on
+fontunderline=yes
+rule.precedence.color=deleted,completed,active,keyword.,tag.,project.,overdue,scheduled,due.today,due,blocked,blocking,recurring,tagged,uda.
+
+# Urgency
+#urgency.user.keyword.<keyword>.coefficient=
+#urgency.user.project.<project>.coefficient=
+#urgency.user.tag.<tag>.coefficient=
+urgency.active.coefficient=
+urgency.age.coefficient=
+urgency.age.max=
+urgency.annotations.coefficient=
+urgency.blocked.coefficient=
+urgency.blocking.coefficient=
+urgency.due.coefficient=
+urgency.inherit.coefficient=
+urgency.next.coefficient=
+urgency.project.coefficient=
+urgency.scheduled.coefficient=
+urgency.tags.coefficient=
+urgency.waiting.coefficient=
+
+# Defaults
+default.command=ruri
+default.due=
+default.project=null
+
+# Sync
+#taskd.ca=<path>
+#taskd.certificate=<path>
+#taskd.ciphers=NORMAL
+#taskd.credentials=<organization>/<user>/<key>
+#taskd.key=<path>
+#taskd.server=<host>:<port>
+#taskd.trust=strict|ignore hostname|allow all
+
+# User Defined Attributes
+#color.uda.X.VALUE=
+#color.uda.X=
+#uda.<name>.default=
+#uda.<name>.indicator=U
+#uda.<name>.label=<column heading>
+#uda.<name>.type=string|numeric|date|duration
+#uda.<name>.values=A,B,C
+#urgency.uda.<name>.<value>.coefficient=
+#urgency.uda.<name>.coefficient=
+uda.uri.type=string
+uda.uri.label=URI
+uda.name.default=null
+uda.name.type=string
+uda.name.label=Name
+uda.note.default=null
+uda.note.type=string
+uda.note.label=Note
+
+# Reports
+#report.X.columns=
+#report.X.dateformat=
+#report.X.description=
+#report.X.filter=
+#report.X.labels=
+#report.X.sort=
+report.active.columns=
+report.active.description=
+report.active.filter=
+report.active.labels=
+report.active.sort=
+report.all.columns=
+report.all.description=
+report.all.labels=
+report.all.sort=
+report.blocked.columns=
+report.blocked.description=
+report.blocked.filter=
+report.blocked.labels=
+report.blocked.sort=
+report.blocking.columns=
+report.blocking.description=
+report.blocking.filter=
+report.blocking.labels=
+report.blocking.sort=
+report.completed.columns=
+report.completed.description=
+report.completed.filter=
+report.completed.labels=
+report.completed.sort=
+report.long.columns=
+report.long.description=
+report.long.filter=
+report.long.labels=
+report.long.sort=
+report.list.columns=
+report.list.description=
+report.list.filter=
+report.list.labels=
+report.list.sort=
+report.minimal.columns=
+report.minimal.description=
+report.minimal.filter=
+report.minimal.labels=
+report.minimal.sort=
+report.next.columns=
+report.next.description=
+report.next.filter=
+report.next.labels=
+report.next.sort=urgency-
+report.overdue.columns=
+report.overdue.description=
+report.overdue.filter=
+report.overdue.labels=
+report.overdue.sort=
+report.ready.columns=
+report.ready.description=
+report.ready.filter=
+report.ready.labels=
+report.ready.sort=
+report.recurring.columns=
+report.recurring.description=
+report.recurring.filter=
+report.recurring.labels=
+report.recurring.sort=
+report.unblocked.columns=
+report.unblocked.description=
+report.unblocked.filter=
+report.unblocked.labels=
+report.unblocked.sort=
+report.waiting.columns=
+report.waiting.description=
+report.waiting.filter=
+report.waiting.labels=
+report.waiting.sort=
+report.ls.description=Modified: Shows all pending tasks
+report.ls.filter=status:pending
+report.ls.columns=id,entry.epoch,modified.epoch,name,uri,project.full,tags.list,depends.list,note
+report.ls.sort=id+
+report.ls.labels=ID,ED,MD,Name,URI,Pro,Tags,Ref,Note
+report.newest.description=Modified: Shows the newest URIs
+report.newest.filter=status:pending limit:30
+report.newest.columns=id,entry.epoch,entry.age,uri
+report.newest.sort=id-
+report.newest.labels=ID,ED,Age,Uri
+report.oldest.description=Modified: Shows the oldest URIs
+report.oldest.filter=status:pending limit:30
+report.oldest.columns=id,entry.epoch,entry.age,uri
+report.oldest.sort=id+
+report.oldest.labels=ID,ED,Age,Uri
+report.rmeta.description=Custom: Shows ID, Pro, Tags and Ref
+report.rmeta.filter=status:pending
+report.rmeta.columns=id,project.full,tags.list,depends.list
+report.rmeta.sort=id+
+report.rmeta.labels=ID,Pro,Tags,Ref
+report.rpro.description=Custom: Shows ID, Project and URI
+report.rpro.filter=status:pending
+report.rpro.columns=id,project.full,uri
+report.rpro.sort=id+
+report.rpro.labels=ID,Pro,URI
+report.rtags.description=Custom: Shows ID, Tags and URI
+report.rtags.filter=status:pending
+report.rtags.columns=id,tags.list,uri
+report.rtags.sort=id+
+report.rtags.labels=ID,Tags,URI
+report.rref.description=Custom: Shows ID, Ref and URI
+report.rref.filter=status:pending
+report.rref.columns=id,depends.list,uri
+report.rref.sort=id+
+report.rref.labels=ID,Ref,URI
+report.ruri.description=Custom: Shows ID and URI
+report.ruri.filter=status:pending
+report.ruri.columns=id,uri
+report.ruri.sort=id+
+report.ruri.labels=ID,URI
+report.rname.description=Custom: Shows ID, Name and URI
+report.rname.filter=status:pending
+report.rname.columns=id,name,uri
+report.rname.sort=id+
+report.rname.labels=ID,Name,URI
+report.rnote.description=Custom: Shows ID and Note
+report.rnote.filter=status:pending
+report.rnote.columns=id,note
+report.rnote.sort=id+
+report.rnote.labels=ID,Note
+
+# Custom
+#include color.theme=
+#include holidays.rc=
+
+# Contexts
+#context.<name>=<filter>=
+#context=<name>=
+
