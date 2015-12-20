@@ -36,23 +36,13 @@ Taskum::Add ()
                 name \
                 note \
                 project \
-                uri ;
+                uri;
 
         builtin typeset -a tags
-        builtin typeset -ga task_add_args
 
         if
-                (( $# == 0 ))
+                (( $# ))
         then
-                builtin read -re -p "URI: " uri
-                uri=${uri%%/}
-                Taskum::TestUri
-                builtin read -re -p "Name: " name
-                builtin read -re -p "Note: " note
-                IFS=';' builtin read -re -p "Tags: " -a tags
-                builtin read -re -p "Project: " project
-                builtin read -re -p "Dependencies: " dependencies
-        else
                 for i
                 do
                         case $i in
@@ -77,14 +67,23 @@ Taskum::Add ()
                                 dependencies=${i#*:}
                         esac
                 done
+        else
+                builtin read -re -p "URI: " uri
+                uri=${uri%%/}
+                Taskum::TestUri
+                builtin read -re -p "Name: " name
+                builtin read -re -p "Note: " note
+                IFS=';' builtin read -re -p "Tags: " -a tags
+                builtin read -re -p "Project: " project
+                builtin read -re -p "Dependencies: " dependencies
         fi
 
-        [[ -z $uri ]] && {
-                printf '%s\n' "We need an URI to record." 1>&2
+        [[ -n $uri ]] || {
+                printf '%s\n' "We need an URI to record" 1>&2
                 return 1
         }
 
-        (( ${#tags[@]} == 0 )) && tags[0]=null
+        (( ${#tags[@]} )) || tags[0]=null
 
         task_add_args=(
                 "description:uri"
@@ -100,9 +99,7 @@ Taskum::Add ()
 }
 
 Taskum::Help () {
-        {
-                builtin typeset help="$(</dev/fd/0)"
-        } <<-'HELP'
+        { builtin typeset help="$(</dev/fd/0)" ; } <<-'HELP'
 Usage
         taskum [ -h | -v | -n ] [ TW_NATIVE ... ]
 
@@ -127,16 +124,18 @@ Taskum::Main ()
 {
         builtin typeset -r \
                 predir_configdir=${XDG_CONFIG_HOME:-${HOME}/.config} \
-                predir_datadir=${XDG_DATA_HOME:-${HOME}/.local/share} ;
+                predir_datadir=${XDG_DATA_HOME:-${HOME}/.local/share};
 
-        builtin declare -rx \
+        builtin typeset -rx \
                 TASKDATA=${TASKUM_DATA:-${predir_datadir}/taskum} \
-                TASKRC=${TASKUM_CONFIG:-${predir_configdir}/taskum/taskumrc} ;
+                TASKRC=${TASKUM_CONFIG:-${predir_configdir}/taskum/taskumrc};
 
         [[ -d $TASKDATA ]] || command mkdir -p -- "$TASKDATA"
         [[ -d ${TASKRC%/*} ]] || command mkdir -p -- "${TASKRC%/*}"
 
         builtin typeset rc_verbose_nothing
+
+        builtin typeset -a task_add_args
 
         while
                 builtin :
@@ -163,7 +162,7 @@ Taskum::Main ()
                         builtin shift 1
                         rc_verbose_nothing=rc.verbose:nothing
                         builtin continue
-                        ;;
+                ;;
                 *)
                         command task ${rc_verbose_nothing} "$@"
                         builtin exit $?
@@ -175,17 +174,17 @@ Taskum::TestUri ()
 if
         [[ ! $uri =~ ^(https?|ftps?|davs?|gopher|webdavs?):// ]]
 then
-        builtin printf '%s\n' "Scheme is not allowed." 1>&2
+        builtin printf '%s\n' "Scheme is not allowed" 1>&2
         builtin exit 1
 elif
         (( $(command task status.is:pending uri.is:"${uri}" count) != 0 ))
 then
-        builtin printf '%s\n' "URI '${uri}' has already been recorded." 1>&2
+        builtin printf 'URI %s has already been recorded\n' "$uri" 1>&2
         builtin exit 1
 fi
 
 Taskum::Version () {
-        builtin printf '%s\n\n' "taskwarrior-um v0.2.0"
+        builtin printf 'taskwarrior-um v%s\n\n' "0.2.0"
 }
 
 # -- MAIN.

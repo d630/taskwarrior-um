@@ -1,6 +1,6 @@
 ##### README
 
-[taskwarrior-um](https://github.com/d630/taskwarrior-um) is a tiny bash shell wrapper to use the command line todo manager [Taskwarrior](http://taskwarrior.org/) as a simple bookmark manager by defining [User Defined Attributes (UDAs)](http://taskwarrior.org/docs/udas.html).
+[taskwarrior-um](https://github.com/d630/taskwarrior-um) is a tiny bash shell wrapper for using the command line todo manager [Taskwarrior](http://taskwarrior.org/) as a simple bookmark manager by defining [User Defined Attributes (UDAs)](http://taskwarrior.org/docs/udas.html).
 
 ##### BUGS & REQUESTS
 
@@ -59,7 +59,7 @@ taskwarrior-um has been written in [GNU bash](http://www.gnu.org/software/bash/)
 
 - GNU bash 4.3.42(1)-release
 - GNU coreutils 8.23: mkdir
-- task 2.4.4
+- task 2.5.0
 
 ##### LICENCE
 
