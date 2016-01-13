@@ -1,12 +1,24 @@
+# [Created by taskwarrior-cv.sh, using task 2.5.0, Wed Jan 13 14:00:43 CET 2016]
+# Taskwarrior program configuration file.
+# For more documentation, see http://taskwarrior.org or try 'man task', 'man task-faq',
+# 'man task-tutorial', 'man task-color', 'man task-sync' or 'man taskrc'
+
+# Here is an example of entries that use the default, override and blank values
+#   variable=foo   -- By specifying a value, this overrides the default
+#   variable=      -- By specifying no value, this means no default
+#   #variable=foo  -- By commenting out the line, or deleting it, this uses the default
+
+# Use the commands 'task show' or 'task _show' to see all defaults and overrides
+
 # Files
-#data.location=
+#data.location=~/.task
 exit.on.missing.db=no
 gc=on
 hooks=on
 locking=on
 
 # Terminal
-#editor=vi
+#editor=vim
 avoidlastcolumn=no
 defaultheight=24
 defaultwidth=80
@@ -38,7 +50,8 @@ dom=on
 expressions=infix
 indent.annotation=2
 indent.report=0
-json.array=off
+json.array=on
+json.depends.array=on
 list.all.projects=yes
 list.all.tags=yes
 nag=You have more urgent tasks.
@@ -55,7 +68,7 @@ shell.prompt=task>
 summary.all.projects=no
 tag.indicator=+
 undo.style=side
-verbose=yes
+verbose=blank,header,footnote,label,new-id,new-uuid,affected,edit,special,project,sync,unwait,recur
 xterm.title=no
 
 # Dates
@@ -92,52 +105,55 @@ dependency.confirmation=on
 dependency.reminder=on
 
 # Color Controls
-#color.active=
-#color.alternate=
-#color.blocked=
-#color.blocking=
-#color.burndown.done=
-#color.burndown.pending=
-#color.burndown.started=
-#color.calendar.due.today=
-#color.calendar.due=
-#color.calendar.holiday=
-#color.calendar.overdue=
-#color.calendar.today=
-#color.calendar.weekend=
-#color.calendar.weeknumber=
+#color.active=rgb555 on rgb410
+#color.alternate=on gray2
+#color.blocked=white on color8
+#color.blocking=black on color15
+#color.burndown.done=on rgb010
+#color.burndown.pending=on color9
+#color.burndown.started=on color11
+#color.calendar.due.today=color15 on color1
+#color.calendar.due=color0 on color1
+#color.calendar.holiday=color0 in color11
+#color.calendar.overdue=color0 on color9
+#color.calendar.today=color15 on rgb013
+#color.calendar.weekend=on color235
+#color.calendar.weeknumber=rgb013
 #color.completed=
-#color.debug=
+#color.debug=color4
 #color.deleted=
-#color.due.today=
-#color.due=
-#color.error=
-#color.footnote=
-#color.header=
-#color.history.add=
-#color.history.delete=
-#color.history.done=
+#color.due.today=rgb400
+#color.due=color1
+#color.error=white on red
+#color.footnote=color3
+#color.header=color3
+#color.history.add=color0 on rgb500
+#color.history.delete=color0 on rgb550
+#color.history.done=color0 on rgb050
 #color.keyword.X=
 #color.label.sort=
 #color.label=
-#color.overdue=
+#color.overdue=color9
 #color.project.X=
 #color.project.none=
-#color.recurring=
-#color.scheduled=
-#color.summary.background=
-#color.summary.bar=
-#color.sync.added=
-#color.sync.changed=
-#color.sync.rejected=
+#color.recurring=rgb013
+#color.scheduled=on rgb001
+#color.summary.background=white on color0
+#color.summary.bar=black on rgb141
+#color.sync.added=rgb010
+#color.sync.changed=color11
+#color.sync.rejected=color9
 #color.tag.X=
+#color.tag.next=rgb440
 #color.tag.none=
-#color.tagged=
+#color.tagged=rgb031
 #color.undo.after=
 #color.undo.before=
 #color.until=
+#color.warning=bold red
 color=on
 fontunderline=yes
+rule.color.merge=yes
 rule.precedence.color=deleted,completed,active,keyword.,tag.,project.,overdue,scheduled,due.today,due,blocked,blocking,recurring,tagged,uda.
 
 # Urgency
@@ -151,15 +167,13 @@ urgency.annotations.coefficient=
 urgency.blocked.coefficient=
 urgency.blocking.coefficient=
 urgency.due.coefficient=
-urgency.inherit.coefficient=
-urgency.next.coefficient=
+urgency.inherit=off
 urgency.project.coefficient=
 urgency.scheduled.coefficient=
 urgency.tags.coefficient=
-urgency.uda.priority.H.coefficient=
-urgency.uda.priority.L.coefficient=
-urgency.uda.priority.M.coefficient=
+urgency.user.tag.next.coefficient=
 urgency.waiting.coefficient=
+
 
 # Defaults
 default.command=ruri
@@ -185,6 +199,12 @@ default.project=null
 #uda.<name>.values=A,B,C
 #urgency.uda.<name>.<value>.coefficient=
 #urgency.uda.<name>.coefficient=
+color.uda.priority.H=
+color.uda.priority.L=
+color.uda.priority.M=
+urgency.uda.priority.H.coefficient=
+urgency.uda.priority.L.coefficient=
+urgency.uda.priority.M.coefficient=
 uda.uri.type=string
 uda.uri.label=URI
 uda.name.default=null
@@ -193,6 +213,10 @@ uda.name.label=Name
 uda.note.default=null
 uda.note.type=string
 uda.note.label=Note
+
+# Contexts
+#context.<name>=<filter>=
+#context=<name>=
 
 # Reports
 #report.X.columns=
@@ -225,16 +249,16 @@ report.completed.description=
 report.completed.filter=
 report.completed.labels=
 report.completed.sort=
-report.long.columns=
-report.long.description=
-report.long.filter=
-report.long.labels=
-report.long.sort=
 report.list.columns=
 report.list.description=
 report.list.filter=
 report.list.labels=
 report.list.sort=
+report.long.columns=
+report.long.description=
+report.long.filter=
+report.long.labels=
+report.long.sort=
 report.minimal.columns=
 report.minimal.description=
 report.minimal.filter=
@@ -244,7 +268,8 @@ report.next.columns=
 report.next.description=
 report.next.filter=
 report.next.labels=
-report.next.sort=urgency-
+report.next.sort=
+report.oldest.sort=entry+
 report.overdue.columns=
 report.overdue.description=
 report.overdue.filter=
@@ -270,7 +295,9 @@ report.waiting.description=
 report.waiting.filter=
 report.waiting.labels=
 report.waiting.sort=
-report.ls.description=Modified: Shows all pending tasks
+
+# Reports: modified
+report.ls.description=Modified: Shows all "pending" URIs
 report.ls.filter=status:pending
 report.ls.columns=id,entry.epoch,modified.epoch,name,uri,project.full,tags.list,depends.list,note
 report.ls.sort=id+
@@ -285,6 +312,8 @@ report.oldest.filter=status:pending limit:30
 report.oldest.columns=id,entry.epoch,entry.age,uri
 report.oldest.sort=id+
 report.oldest.labels=ID,ED,Age,Uri
+
+# Reports: custom
 report.rmeta.description=Custom: Shows ID, Pro, Tags and Ref
 report.rmeta.filter=status:pending
 report.rmeta.columns=id,project.full,tags.list,depends.list
@@ -324,8 +353,3 @@ report.rnote.labels=ID,Note
 # Custom
 #include color.theme=
 #include holidays.rc=
-
-# Contexts
-#context.<name>=<filter>=
-#context=<name>=
-

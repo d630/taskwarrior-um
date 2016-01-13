@@ -30,7 +30,7 @@ Put `./bin/taskum` on your PATH and copy `./doc/examples/taskumrc` to TASKUM_CON
 ###### INVOCATION
 
 ```
-taskum [ -h | -v | -n ] [ TW_NATIVE ... ]
+taskum [ -h | -v | -n | -o | -O ] [ -m ] [ TW_NATIVE ... ]
 ```
 
 ###### ENVIRONMENT VARIABLES
@@ -47,8 +47,15 @@ TASKUM_DATA
 ```
 -h,  --help
 -v,  --version
--n,  --verbose-nothing      means: 'task rc.verbose:nothing'
+-m,  --use-menu                 Use a menu when adding project and tags.
+                                Configure it in Taskum::AddMenu. Defaults
+                                are dmenu and slmenu. Don't execute
+                                taskum via source when using this option
+-n,  --verbose-nothing          Means: 'task rc.verbose:nothing'
+-o,  --verbose-on               ""     'task rc.verbose:on'
+-O,  --verbose-off              ""     'task rc.verbose:off'
 ```
+
 ###### EXAMPLES
 
 See [INFO](../master/doc/INFO.md)
@@ -58,7 +65,12 @@ See [INFO](../master/doc/INFO.md)
 taskwarrior-um has been written in [GNU bash](http://www.gnu.org/software/bash/) on [Debian GNU/Linux 9 (stretch/sid)](https://www.debian.org) using these programs/packages:
 
 - GNU bash 4.3.42(1)-release
-- GNU coreutils 8.23: mkdir
+- GNU coreutils 8.23: mkdir, sort, tr
+- dmenu-4.6
+- grep (GNU grep) 2.22
+- procps-ng 3.3.11: ps
+- sed (GNU sed) 4.2.2
+- slmenu 0.1
 - task 2.5.0
 
 ##### LICENCE

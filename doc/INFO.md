@@ -1,6 +1,10 @@
-#### INFO
+#### Info
 
-In order to add a record, we have to specify minimum an URI. Without any arguments, `read` prompts you to build the command arguments. Take care to seperate tags with `;`. If you do not specify `project`, `name` or `note`, they will get the default value `null`. A fully formulated `add` command could look like this:
+In order to add a record, we have to specify at least an URI. Without any arguments, `read` prompts you to build them; take care to seperate tags with `+` and dependencies with `,`. If you do not specify `project`, `name` or `note`, they will get the default value `null`.
+
+You may also use option `m`: In this case, project and tags will be specified using slmenu/dmenu.
+
+A fully formulated `add` command could look like this:
 
 ```
 $ taskum add \
@@ -24,13 +28,12 @@ $ taskum -n
 
 #### Metadata Items (Fields)
 
-In Taskwarrior, every task needs to have a description. In doing so, it is irrelevant, if a description conforms with an another description of a different task. To identify a task, there are the `UUID` field as permanent key and the [id](http://taskwarrior.org/docs/ids.html) field as temporary assignment (line counted relative to the entries).
+In Taskwarrior, every task needs to have a description. It is irrelevant for Taskwarrior, if a description conforms with an another description of a different task. In order to identify a task, there are the `UUID` field as permanent key and the [id](http://taskwarrior.org/docs/ids.html) field as temporary assignment (line counted relative to the entries).
 
-The first difference in using Taskwarrior as bookmark manager is that there is -- of course -- no tasking and nothing, what should be completed. In taskwarrior-um all records have the status `pending` or `deleted`, and we do not need all the subcommands and built-in-attributes (for example [urgency](http://taskwarrior.org/docs/urgency.html)), which imply the differentiation between `pending`, `completed` etc.
+The first difference in using Taskwarrior as bookmark manager is that there is -- of course -- no tasking and nothing, what should be completed. In taskwarrior-um all records have the status `pending` or `deleted`; we do not need subcommands and built-in-attributes, which imply the differentiation between `pending`, `completed` etc. (for example [urgency](http://taskwarrior.org/docs/urgency.html)).
+The second ascpect is that we ignore the description attribute; a bookmark should be free to have a description. Unfortunately, we cannot rename the label of this attribute, because it is built-in. For this reason, every record gets a `description` with the value `uri` as place holder.
 
-The second ascpect is that we ignore the description attribute; a bookmark should be free to have a description. Unfortunately, we can not rename the label of this attribute, because it is built-in. For this reason, every record gets a `description` with the value `uri` as place holder.
-
-The built-in attributes and metadata, that we consider, are `project` and `depends`. Furthermore, we will use `tags`, which are arbitrary words in Taskwarrior. The following UDAs are defined and used:
+The considered built-in attributes and metadata are `project` and `depends`. Furthermore, we will use `tags`, which are arbitrary words in Taskwarrior. The following UDAs are defined and used by taskwarrior-um:
 
 ```
 Name     Type   Label    Allowed Values Default Usage Count
@@ -80,7 +83,7 @@ Like I said, we should ignore `description` and `urgency`. On the `depends` attr
 
 #### Reports
 
-taskwarrior-um comes along with 35 built-in and custom reports. The modified buit-in reports are `ls`, `newest` and `oldest`. The custom reports are:
+taskwarrior-um comes along with 21 reports. The modified built-in reports are `ls`, `newest` and `oldest`. Custom reports are:
 
 ```
 rmeta            Custom: Shows ID, Pro, Tags and Ref
@@ -89,6 +92,7 @@ rnote            Custom: Shows ID and Note
 rpro             Custom: Shows ID, Project and URI
 rref             Custom: Shows ID, Ref and URI
 rtags            Custom: Shows ID, Tags and URI
+ruri             Custom: Shows ID and URI
 ```
 
 You may list all supported reports with Taskwarriors's subcommand `reports`:
@@ -104,7 +108,7 @@ Along with this script comes an examplary configuration file named `taskumrc`.
 The defaults are:
 
 ```
-$ taskum _show | egrep -e "^default\."
+$ taskum _show | grep -e "^default\."
 
 default.command=ruri
 default.due=
@@ -114,7 +118,7 @@ default.project=null
 The UDAs are:
 
 ```
-$ taskum _show | egrep -e "^uda"
+$ taskum _show | grep -e "^uda.[^p].*"
 
 uda.name.default=null
 uda.name.label=Name
@@ -124,9 +128,6 @@ uda.note.default=null
 uda.note.label=Note
 uda.note.type=string
 uda.note.values=
-uda.priority.label=Priority
-uda.priority.type=string
-uda.priority.values=H,M,L,
 uda.uri.label=URI
 uda.uri.type=string
 uda.uri.values=
@@ -190,10 +191,10 @@ report.ruri.labels=ID,URI
 report.ruri.sort=id+
 ```
 
-Every urgency setting has no value:
+Every urgency setting has no value or is off:
 
 ```
-$ taskum _show | egrep -e "^urgency"
+$ taskum _show | grep -e "^urgency"
 
 urgency.active.coefficient=
 urgency.age.coefficient=
@@ -202,7 +203,7 @@ urgency.annotations.coefficient=
 urgency.blocked.coefficient=
 urgency.blocking.coefficient=
 urgency.due.coefficient=
-urgency.inherit.coefficient=
+urgency.inherit=off
 urgency.next.coefficient=
 urgency.project.coefficient=
 urgency.scheduled.coefficient=
@@ -210,6 +211,7 @@ urgency.tags.coefficient=
 urgency.uda.priority.H.coefficient=
 urgency.uda.priority.L.coefficient=
 urgency.uda.priority.M.coefficient=
+urgency.user.tag.next.coefficient=
 urgency.waiting.coefficient=
 ```
 
