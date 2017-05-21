@@ -1,305 +1,268 @@
 #!/usr/bin/env bash
-
+#
 # taskwarrior-um
-# Copyright (C) 2014f. D630, GNU GPLv3
+# Copyright (C) 2014-17 D630, GNU GPLv3
 # <https://github.com/D630/taskwarrior-um>
-
-# -- DEBUGGING.
-
-#printf '%s (%s)\n' "$BASH_VERSION" "${BASH_VERSINFO[5]}" && exit 0
-#set -o errexit
-#set -o errtrace
-#set -o noexec
-#set -o nounset
-#set -o pipefail
-#set -o verbose
-#set -o xtrace
-#trap '(read -p "[$BASH_SOURCE:$LINENO] $BASH_COMMAND?")' DEBUG
-#exec 2>> ~/taskum.log
-#typeset vars_base=$(set -o posix ; set)
-#fgrep -v -e "$vars_base" < <(set -o posix ; set) |
-#egrep -v -e "^BASH_REMATCH=" \
-#         -e "^OPTIND=" \
-#         -e "^REPLY=" \
-#         -e "^BASH_LINENO=" \
-#         -e "^BASH_SOURCE=" \
-#         -e "^FUNCNAME=" |
-#less
 
 # -- FUNCTIONS.
 
-Taskum::Add ()
-{
-        builtin typeset \
-                dependencies \
-                i \
-                name \
-                note \
-                project \
-                uri;
+taskum_add () {
+	typeset \
+	 dependencies \
+	 i \
+	 name \
+	 note \
+	 project \
+	 uri;
 
-        builtin typeset -a tags
+	typeset -a tags
 
-        if
-                (( $# ))
-        then
-                for i
-                do
-                        case $i in
-                        uri:?*)
-                                uri=${i#*:}
-                                uri=${uri%%/}
-                                Taskum::TestUri
-                        ;;
-                        name:?*)
-                                name=${i#*:}
-                        ;;
-                        note:?*)
-                                note=${i#*:}
-                        ;;
-                        pro:?*)
-                                project=${i#*:}
-                        ;;
-                        +?*)
-                                tags+=("${i#*+}")
-                        ;;
-                        dep:?*)
-                                dependencies=${i#*:}
-                        esac
-                done
-        else
-                builtin read -re -p "URI: " uri
-                uri=${uri%%/}
-                Taskum::TestUri
-                builtin read -re -p "Name: " name
-                builtin read -re -p "Note: " note
-                if
-                        ${use_menu}
-                then
-                        Taskum::AddMenu
-                else
-                        builtin read -re -p "Project: " project
-                        IFS='+' builtin read -re -p "Tags: +" -a tags
-                fi
-                builtin read -re -p "Dependencies: " dependencies
-        fi
+	if
+		(($#));
+	then
+		for i in "$@";
+		do
+			case $i in
+				(uri:?*)
+					uri=${i#*:};
+					uri=${uri%%/}:
+					taskum_test_uri;;
+				(name:?*)
+					name=${i#*:};;
+				(note:?*)
+					note=${i#*:};;
+				(pro:?*)
+					project=${i#*:};;
+				(+?*)
+					tags+=("${i#*+}");;
+				(dep:?*)
+					dependencies=${i#*:}
+			esac;
+		done;
+	else
+		read -re -p "URI: " uri;
+		uri=${uri%%/};
+		taskum_test_uri;
+		read -re -p "Name: " name;
+		read -re -p "Note: " note;
+		if
+			$use_menu;
+		then
+			taskum_add_menu;
+		else
+			read -re -p "Project: " project;
+			IFS='+' read -re -p "Tags: +" -a tags;
+		fi;
+		read -re -p "Dependencies: " dependencies;
+	fi;
 
-        [[ -n $uri ]] || {
-                builtin printf '%s\n' "We need an URI to record" 1>&2
-                builtin return 1
-        }
+	[[ -n $uri ]] || {
+		printf '%s\n' "We need an URI to record" 1>&2;
+		return 1;
+	};
 
-        (( ${#tags[@]} )) || tags[0]=null
+	((${#tags[@]})) ||
+	 tags[0]=null;
 
-        task_add_args=(
-                "description:uri"
-                "uri:${uri}"
-                "name:${name:-null}"
-                "note:${note:-null}"
-                "project:${project}"
-                "depends:${dependencies}"
-                ${tags[@]/#/+}
-        )
+	task_add_args=(
+		"description:uri"
+		"uri:$uri"
+		"name:${name:-null}"
+		"note:${note:-null}"
+		"project:${project}"
+		"depends:${dependencies}"
+		${tags[@]/#/+}
+	);
 
-        (( ${#task_add_args[@]} >= 2 ))
-}
+	((${#task_add_args[@]} >= 2));
+};
 
-Taskum::AddMenu ()
-{
-        builtin typeset \
-                tag \
-                tty;
+taskum_add_menu () {
+	typeset \
+	 tag \
+	 tty;
 
-        if
-                tty=$(command ps -p "$PPID" -o tty=)
-                [[ -n ${tty/\?/} ]]
-        then
-                function __menu { command slmenu -b -f -i -p "$1" || builtin exit 1 ; }
-        elif
-                [[ -n $DISPLAY ]]
-        then
-                function __menu { command dmenu -b -f -i -l 10 -p "$1" || builtin exit 1 ; }
-        else
-                builtin exit 1
-        fi
+	if
+		tty=$(command ps -p "$PPID" -o tty=);
+		[[ -n ${tty/\?/} ]];
+	then
+		function __menu { command slmenu -b -f -i -p "$1" || exit 1; };
+	elif
+		[[ -n $DISPLAY ]];
+	then
+		function __menu { command dmenu -b -f -i -l 10 -p "$1" || exit 1; };
+	else
+		exit 1;
+	fi;
 
-        project=$(
-                {
-                        builtin printf '%s\n' "NEW";
-                        command task rc.list.all.projects=yes _unique project \
-                        | command sed 'p;s/^\([^\.]*\)\..*/\1/' \
-                        | command sort -u;
-                } \
-                | __menu "PROJECT";
-        )
+	project=$(
+		{
+			printf '%s\n' "NEW";
+			command task rc.list.all.projects=yes _unique project |
+			command sed 'p;s/^\([^\.]*\)\..*/\1/' |
+			command sort -u;
+		} |
+		__menu "PROJECT";
+	);
 
-        [[ $project == NEW ]] && project=$(
-                builtin printf '%s' \
-                | __menu "PROJECT";
-        )
+	[[ $project == NEW ]] &&
+	 project=$(
+		printf '%s' |
+		__menu "PROJECT";
+	 );
 
+	while
+		case 1 in esac;
+	do
+		tag=$(
+			{
+				printf '%s\n' "NEW";
+				command task rc.list.all.tags=yes _unique tags |
+				command tr ',' '\n' |
+				command sort -u;
+			} |
+			__menu "TAG";
+		);
+		[[ $tag == NEW ]] &&
+		 tag=$(
+			printf '%s' |
+			__menu "TAG";
+		 );
+		if
+			[[ -n $tag ]];
+		then
+			printf '+%s\n' "$tag";
+			tags+=("$tag");
+		else
+			break;
+		fi;
+	done;
+};
 
-        while
-                builtin :
-        do
-                tag=$(
-                        {
-                                builtin printf '%s\n' "NEW";
-                                command task rc.list.all.tags=yes _unique tags \
-                                | command tr ',' '\n' \
-                                | command sort -u;
-                        } \
-                        | __menu "TAG";
-                )
-                [[ $tag == NEW ]] && tag=$(
-                        builtin printf '%s' \
-                        | __menu "TAG"
-                )
-                if
-                        [[ -n $tag ]]
-                then
-                        builtin printf '+%s\n' "$tag"
-                        tags+=( "$tag" )
-                else
-                        builtin break
-                fi
-        done
-}
-
-Taskum::Help ()
-{
-        { builtin typeset help="$(</dev/fd/0)" ; } <<-'HELP'
+taskum_help () {
+	{ typeset help=$(< /dev/fd/7); } 7<<'HELP'
 Usage
-        taskum [ -h | -v | -n | -o | -O ] [ -m ] [ TW_NATIVE ... ]
+	taskum [ -h | -v | -n | -o | -O ] [ -m ] [ TW_NATIVE ... ]
 
 Options
-        -h,  --help
-        -v,  --version
-        -m,  --use-menu                 Use a menu when adding project and tags.
-                                        Configure it in Taskum::AddMenu. Defaults
-                                        are dmenu and slmenu. Don't execute
-                                        taskum via source when using this option
-        -n,  --verbose-nothing          Means: 'task rc.verbose:nothing'
-        -o,  --verbose-on               ""     'task rc.verbose:on'
-        -O,  --verbose-off              ""     'task rc.verbose:off'
+	-h, --help
+	-v, --version
+	-m, --use-menu
+		Use a menu when adding project and tags. Configure it in taskum_add_menu.
+		Defaults are dmenu and slmenu. Don't execute taskum via source when using
+		this option
+	-n, --verbose-nothing
+		Means: 'task rc.verbose:nothing'
+	-o, --verbose-on
+		Means: 'task rc.verbose:on'
+	-O, --verbose-off
+		Means: 'task rc.verbose:off'
 
 Environment variables
-        TASKUM_CONFIG
-                Default: ${XDG_CONFIG_HOME:-${HOME}/.config}/taskum/taskrc
-        TASKUM_DATA
-                Default: ${XDG_DATA_HOME:-${HOME}/.local/share}/taskum
+	TASKUM_CONFIG
+		Default: ${XDG_CONFIG_HOME:-$HOME/.config}/taskum/taskrc
+	TASKUM_DATA
+		Default: ${XDG_DATA_HOME:-$HOME/.local/share}/taskum
 
 ---
 
 HELP
-        builtin printf '%s\n' "$help"
-}
+	printf '%s\n' "$help";
+};
 
-Taskum::Main ()
-{
-        builtin typeset -r \
-                predir_configdir=${XDG_CONFIG_HOME:-${HOME}/.config} \
-                predir_datadir=${XDG_DATA_HOME:-${HOME}/.local/share};
+taskum_main () {
+	typeset -rx \
+	 TASKDATA=${TASKUM_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/taskum} \
+	 TASKRC=${TASKUM_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/taskum/taskumrc};
 
-        builtin typeset -rx \
-                TASKDATA=${TASKUM_DATA:-${predir_datadir}/taskum} \
-                TASKRC=${TASKUM_CONFIG:-${predir_configdir}/taskum/taskumrc};
+	[[ -d $TASKDATA ]] ||
+	 command mkdir -p -- "$TASKDATA";
+	[[ -d $(command dirname "$TASKRC") ]] ||
+	 command mkdir -p -- "$(command dirname "$TASKRC")";
 
-        [[ -d $TASKDATA ]] || command mkdir -p -- "$TASKDATA"
-        [[ -d ${TASKRC%/*} ]] || command mkdir -p -- "${TASKRC%/*}"
+	typeset \
+	 rc_verbose=on \
+	 use_menu=false;
 
-        builtin typeset \
-                rc_verbose=on \
-                use_menu=false;
+	typeset -a task_add_args;
 
-        builtin typeset -a task_add_args
+	while
+		case 1 in esac;
+	do
+		case $1 in
+			(-v|--version)
+				taskum_version;
+				command task \
+				 rc.verbose:nothing \
+				 rc.confirmation:no \
+				 rc.hooks:off \
+				 version;
+				exit $?;;
+			(-h|--help)
+				taskum_help;
+				command task \
+				 rc.verbose:nothing \
+				 rc.confirmation:no \
+				 rc.hooks:off \
+				 help;
+				exit $?;;
+			(--add|add)
+				shift 1;
+				taskum_add "$@" &&
+				 command task \
+				 rc.verbose:off \
+				 add "${task_add_args[@]}";
+				exit $?;;
+			(-m|-use-menu)
+				shift 1;
+				use_menu=true;;
+			(-n|-verbose-nothing)
+				shift 1;
+				rc_verbose=nothing;
+				builtin continue;;
+			(-o|-verbose-on)
+				shift 1;
+				rc_verbose=on;
+				continue;;
+			(-O|-verbose-off)
+				shift 1;
+				rc_verbose=off;
+				continue;;
+			(*)
+				command task "rc.verbose=$rc_verbose" "$@";
+				exit $?;
+		esac;
+	done;
+};
 
-        while
-                builtin :
-        do
-                case ${1#-} in
-                v|-version)
-                        Taskum::Version
-                        command task \
-                                rc.verbose:nothing \
-                                rc.confirmation:no \
-                                rc.hooks:off \
-                                version;
-                        builtin exit $?
-                ;;
-                h|-help)
-                        Taskum::Help
-                        command task \
-                                rc.verbose:nothing \
-                                rc.confirmation:no \
-                                rc.hooks:off \
-                                help;
-                        builtin exit $?
-                ;;
-                -add|add)
-                        builtin shift 1
-                        Taskum::Add "$@" && {
-                                command task \
-                                        rc.verbose:off \
-                                        add "${task_add_args[@]}";
-                        }
-                        builtin exit $?
-                ;;
-                m|-use-menu)
-                        builtin shift 1
-                        use_menu=true
-                ;;
-                n|-verbose-nothing)
-                        builtin shift 1
-                        rc_verbose=nothing
-                        builtin continue
-                ;;
-                o|-verbose-on)
-                        builtin shift 1
-                        rc_verbose=on
-                        builtin continue
-                ;;
-                O|-verbose-off)
-                        builtin shift 1
-                        rc_verbose=off
-                        builtin continue
-                ;;
-                *)
-                        command task rc.verbose=${rc_verbose} "$@"
-                        builtin exit $?
-                esac
-        done
-}
-
-Taskum::TestUri ()
+taskum_test_uri ()
 if
-        ! <<< "$uri" \
-        command grep -qP -e \
-                '((http|https|gopher|ftp|ftps|webdav|webdavs|dav|davs):(//)?[^ <>"\t]*|(www|ftp)[0-9]?\.[-a-z0-9.]+)[^ .,;\t\n\r<">\):]?[^, <>"\t]*[^ .,;\t\n\r<">\):]'
+	! <<< "$uri" \
+	 command grep -qP \
+	 -e '((http|https|gopher|ftp|ftps|webdav|webdavs|dav|davs):(//)?[^ <>"\t]*|(www|ftp)[0-9]?\.[-a-z0-9.]+)[^ .,;\t\n\r<">\):]?[^, <>"\t]*[^ .,;\t\n\r<">\):]';
 then
-        builtin printf '%s\n' "Scheme of URI is not allowed" 1>&2
-        builtin exit 1
+	printf '%s\n' "Scheme of URI is not allowed" 1>&2;
+	exit 1;
 elif
-        builtin typeset -i count="$(
-                command task \
-                        rc.verbose:nothing \
-                        status.is:pending \
-                        uri.is:"${uri}" \
-                        count;
-        )"
-        (( count ))
+	typeset -i count=$(
+		command task \
+		 rc.verbose:nothing \
+		 status.is:pending \
+		 "uri.is:$uri" \
+		 count;
+	);
+	((count));
 then
-        builtin printf 'URI %s has already been recorded\n' "$uri" 1>&2
-        builtin exit 1
-fi
+	printf 'URI %s has already been recorded\n' "$uri" 1>&2;
+	exit 1;
+fi;
 
-Taskum::Version ()
-{
-        builtin printf 'taskwarrior-um v%s\n\n' "0.2.1"
-}
+taskum_version () {
+	printf 'taskwarrior-um v%s\n\n' "0.2.2";
+};
 
 # -- MAIN.
 
-Taskum::Main "$@"
+taskum_main "$@";
 
-# vim: set ts=8 sw=8 tw=0 et :
+# vim: set ts=2 sw=2 tw=0 noet :

@@ -1,4 +1,4 @@
-# [Created by taskwarrior-cv.sh, using task 2.5.0, Wed Jan 13 14:00:43 CET 2016]
+# [Created by taskwarrior-cv, using task 2.5.1, Sun May 21 17:20:58 CEST 2017]
 # Taskwarrior program configuration file.
 # For more documentation, see http://taskwarrior.org or try 'man task', 'man task-faq',
 # 'man task-tutorial', 'man task-color', 'man task-sync' or 'man taskrc'
@@ -18,7 +18,7 @@ hooks=on
 locking=on
 
 # Terminal
-#editor=vim
+#editor=/usr/bin/vi
 avoidlastcolumn=no
 defaultheight=24
 defaultwidth=80
@@ -173,7 +173,6 @@ urgency.scheduled.coefficient=
 urgency.tags.coefficient=
 urgency.user.tag.next.coefficient=
 urgency.waiting.coefficient=
-
 
 # Defaults
 default.command=ruri

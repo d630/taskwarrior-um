@@ -1,8 +1,12 @@
 #### Info
 
-In order to add a record, we have to specify at least an URI. Without any arguments, `read` prompts you to build them; take care to seperate tags with `+` and dependencies with `,`. If you do not specify `project`, `name` or `note`, they will get the default value `null`.
+In order to add a record, we have to specify at least an URI. Without any
+arguments, `read` prompts you to build them; take care to seperate tags with
+`+` and dependencies with `,`. If you do not specify `project`, `name` or
+`note`, they will get the default value `null`.
 
-You may also use option `m`: In this case, project and tags will be specified using slmenu/dmenu.
+You may also use option `m`: In this case, project and tags will be specified
+using slmenu/dmenu.
 
 A fully formulated `add` command could look like this:
 
@@ -28,12 +32,26 @@ $ taskum -n
 
 #### Metadata Items (Fields)
 
-In Taskwarrior, every task needs to have a description. It is irrelevant for Taskwarrior, if a description conforms with an another description of a different task. In order to identify a task, there are the `UUID` field as permanent key and the [id](http://taskwarrior.org/docs/ids.html) field as temporary assignment (line counted relative to the entries).
+In Taskwarrior, every task needs to have a description. It is irrelevant for
+Taskwarrior, if a description conforms with an another description of
+a different task. In order to identify a task, there are the `UUID` field as
+permanent key and the [id](http://taskwarrior.org/docs/ids.html) field as
+temporary assignment (line counted relative to the entries).
 
-The first difference in using Taskwarrior as bookmark manager is that there is -- of course -- no tasking and nothing, what should be completed. In taskwarrior-um all records have the status `pending` or `deleted`; we do not need subcommands and built-in-attributes, which imply the differentiation between `pending`, `completed` etc. (for example [urgency](http://taskwarrior.org/docs/urgency.html)).
-The second ascpect is that we ignore the description attribute; a bookmark should be free to have a description. Unfortunately, we cannot rename the label of this attribute, because it is built-in. For this reason, every record gets a `description` with the value `uri` as place holder.
+The first difference in using Taskwarrior as bookmark manager is that there is
+-- of course -- no tasking and nothing, what should be completed. In
+taskwarrior-um all records have the status `pending` or `deleted`; we do not
+need subcommands and built-in-attributes, which imply the differentiation
+between `pending`, `completed` etc. (for example
+[urgency](http://taskwarrior.org/docs/urgency.html)). The second ascpect is
+that we ignore the description attribute; a bookmark should be free to have
+a description. Unfortunately, we cannot rename the label of this attribute,
+because it is built-in. For this reason, every record gets a `description` with
+the value `uri` as place holder.
 
-The considered built-in attributes and metadata are `project` and `depends`. Furthermore, we will use `tags`, which are arbitrary words in Taskwarrior. The following UDAs are defined and used by taskwarrior-um:
+The considered built-in attributes and metadata are `project` and `depends`.
+Furthermore, we will use `tags`, which are arbitrary words in Taskwarrior. The
+following UDAs are defined and used by taskwarrior-um:
 
 ```
 Name     Type   Label    Allowed Values Default Usage Count
@@ -79,11 +97,13 @@ Note                 some tutorials and introductions
 URI                  http://taskwarrior.org/docs
 ```
 
-Like I said, we should ignore `description` and `urgency`. On the `depends` attribute we give a different interpretation as `reference` attribute.
+Like I said, we should ignore `description` and `urgency`. On the `depends`
+attribute we give a different interpretation as `reference` attribute.
 
 #### Reports
 
-taskwarrior-um comes along with 21 reports. The modified built-in reports are `ls`, `newest` and `oldest`. Custom reports are:
+taskwarrior-um comes along with 21 reports. The modified built-in reports are
+`ls`, `newest` and `oldest`. Custom reports are:
 
 ```
 rmeta            Custom: Shows ID, Pro, Tags and Ref
