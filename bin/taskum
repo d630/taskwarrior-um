@@ -25,7 +25,7 @@ taskum_add () {
 			case $i in
 				(uri:?*)
 					uri=${i#*:};
-					uri=${uri%%/}:
+					uri=${uri%%/};
 					taskum_test_uri;;
 				(name:?*)
 					name=${i#*:};;
@@ -36,7 +36,7 @@ taskum_add () {
 				(+?*)
 					tags+=("${i#*+}");;
 				(dep:?*)
-					dependencies=${i#*:}
+					dependencies=${i#*:};;
 			esac;
 		done;
 	else
@@ -230,7 +230,7 @@ taskum_main () {
 				continue;;
 			(*)
 				command task "rc.verbose=$rc_verbose" "$@";
-				exit $?;
+				exit $?;;
 		esac;
 	done;
 };
